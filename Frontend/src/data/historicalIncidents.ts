@@ -1,0 +1,171 @@
+export interface HistoricalIncident {
+  id: string;
+  name: string;
+  date: string;
+  year: number;
+  location: string;
+  region: string;
+  coordinates: [number, number];
+  severity: "Critical" | "High" | "Medium" | "Low";
+  severityScore: number; // 0-100
+  spillVolumeTonnes: number;
+  spillAreaKm2: number;
+  vesselName: string;
+  vesselType: string;
+  flag: string;
+  flagCode: string;
+  primaryCause: string;
+  responseTimeHours: number;
+  containmentRate: number; // %
+  attributionCertainty: number; // %
+  legalOutcome: string;
+  environmentalImpact: string;
+  keyLesson: string;
+}
+
+export const HISTORICAL_INCIDENTS: HistoricalIncident[] = [
+  {
+    id: "HIST-2017-02",
+    name: "Ennore Oil Spill (MT Dawn Kanchipuram)",
+    date: "28 Jan 2017",
+    year: 2017,
+    location: "Kamarajar Port, Ennore, Chennai",
+    region: "Bay of Bengal (East Coast India)",
+    coordinates: [13.2644, 80.3312],
+    severity: "High",
+    severityScore: 78,
+    spillVolumeTonnes: 251,
+    spillAreaKm2: 84.5,
+    vesselName: "MT Dawn Kanchipuram",
+    vesselType: "Petroleum Product Tanker",
+    flag: "India",
+    flagCode: "IN",
+    primaryCause: "Collision with LPG carrier BW Maple during fairway navigation",
+    responseTimeHours: 14.5,
+    containmentRate: 72,
+    attributionCertainty: 100,
+    legalOutcome: "Settlement executed under Admiralty Suit; ₹138 Crore claims awarded for mangrove remediation.",
+    environmentalImpact: "34 km of shoreline blackened from Ennore to Marina Beach; extensive damage to olive ridley sea turtle nesting grounds.",
+    keyLesson: "Manual response bucket-brigades highlighted need for automated hydrodynamic trajectory modeling and coordinated skimming.",
+  },
+  {
+    id: "HIST-2010-03",
+    name: "Mumbai Harbour Collision (MSC Chitra)",
+    date: "07 Aug 2010",
+    year: 2010,
+    location: "Offshore Mumbai Channel, Maharashtra",
+    region: "Arabian Sea (West Coast India)",
+    coordinates: [18.9100, 72.8200],
+    severity: "Critical",
+    severityScore: 86,
+    spillVolumeTonnes: 800,
+    spillAreaKm2: 215.0,
+    vesselName: "MSC Chitra",
+    vesselType: "Container Carrier",
+    flag: "Panama",
+    flagCode: "PA",
+    primaryCause: "Bow collision with MV Khalijia-3 in navigation channel",
+    responseTimeHours: 8.0,
+    containmentRate: 64,
+    attributionCertainty: 98,
+    legalOutcome: "Captain prosecuted under Merchant Shipping Act; ₹45 Crore cleanup costs recovered by Maharashtra State.",
+    environmentalImpact: "Oil reached Raigad coastline, Elephanta Caves mangroves, and Aarey coastal bird habitats; 31 containers sank containing hazardous cargo.",
+    keyLesson: "Rapid port-clearance protocols and high-resolution SAR tracking needed for congested shipping lanes.",
+  },
+  {
+    id: "HIST-2020-01",
+    name: "MV Wakashio Reef Grounding",
+    date: "25 Jul 2020",
+    year: 2020,
+    location: "Pointe d'Esny, Mauritius",
+    region: "Indian Ocean",
+    coordinates: [-20.4403, 57.7478],
+    severity: "Critical",
+    severityScore: 92,
+    spillVolumeTonnes: 1000,
+    spillAreaKm2: 320.0,
+    vesselName: "MV Wakashio",
+    vesselType: "Capesize Bulk Carrier",
+    flag: "Panama",
+    flagCode: "PA",
+    primaryCause: "Grounding on coral reef after deviating closer to shore for Wi-Fi signal",
+    responseTimeHours: 48.0,
+    containmentRate: 58,
+    attributionCertainty: 100,
+    legalOutcome: "Master and First Officer sentenced to 20 months imprisonment; international compensation claims exceeding $80M.",
+    environmentalImpact: "Direct discharge into Blue Bay Marine Park and Ramsar wetlands; massive coral reef necrosis and artisanal fishery closure.",
+    keyLesson: "Automated geofencing alert triggers when deep-draft commercial vessels deviate within 12 NM of sensitive reef ecosystems.",
+  },
+  {
+    id: "HIST-2021-04",
+    name: "MT New Diamond Fire & Discharge",
+    date: "03 Sep 2020",
+    year: 2020,
+    location: "38 NM off Sangamankanda Point",
+    region: "Indian Ocean / Sri Lanka EEZ",
+    coordinates: [7.2100, 82.2500],
+    severity: "High",
+    severityScore: 81,
+    spillVolumeTonnes: 450,
+    spillAreaKm2: 110.0,
+    vesselName: "MT New Diamond",
+    vesselType: "Very Large Crude Carrier (VLCC)",
+    flag: "Panama",
+    flagCode: "PA",
+    primaryCause: "Boiler explosion in engine room causing major fire with 270,000 tonnes crude on board",
+    responseTimeHours: 4.5,
+    containmentRate: 91,
+    attributionCertainty: 100,
+    legalOutcome: "Owners paid $2.4M fire fighting costs + $1.8M marine damage compensation to Sri Lankan Marine Environment Authority.",
+    environmentalImpact: "Bunker fuel sheen observed across 110 km²; successful offshore towing prevented cargo tank breach into coral lagoon.",
+    keyLesson: "Joint Indian Coast Guard and Sri Lankan Navy aerial dispersant operations proved value of rapid regional asset mobilization.",
+  },
+  {
+    id: "HIST-2023-05",
+    name: "MT Princess Empress Sinking",
+    date: "28 Feb 2023",
+    year: 2023,
+    location: "Tablas Strait, Naujan, Oriental Mindoro",
+    region: "Verde Island Passage",
+    coordinates: [13.1800, 121.4500],
+    severity: "High",
+    severityScore: 79,
+    spillVolumeTonnes: 800,
+    spillAreaKm2: 240.0,
+    vesselName: "MT Princess Empress",
+    vesselType: "Industrial Fuel Oil Tanker",
+    flag: "Philippines",
+    flagCode: "PH",
+    primaryCause: "Structural engine flooding in rough seas leading to capsizing in deep waters (400m)",
+    responseTimeHours: 36.0,
+    containmentRate: 52,
+    attributionCertainty: 100,
+    legalOutcome: "Shipowner held liable for operating without updated coast guard permit; ongoing maritime compensation processing.",
+    environmentalImpact: "Contaminated Verde Island Passage, the 'center of center of marine shore fish biodiversity', impacting 40,000 fishermen.",
+    keyLesson: "Deep-water ROV remote capping protocols must be pre-integrated into national oil spill disaster contingency plans.",
+  },
+  {
+    id: "HIST-1989-06",
+    name: "Exxon Valdez Grounding",
+    date: "24 Mar 1989",
+    year: 1989,
+    location: "Prince William Sound, Bligh Reef, Alaska",
+    region: "North Pacific",
+    coordinates: [60.8333, -146.8667],
+    severity: "Critical",
+    severityScore: 96,
+    spillVolumeTonnes: 37000,
+    spillAreaKm2: 2800.0,
+    vesselName: "Exxon Valdez",
+    vesselType: "Crude Oil Supertanker",
+    flag: "United States",
+    flagCode: "US",
+    primaryCause: "Grounding on Bligh Reef following unmonitored course deviation around icebergs",
+    responseTimeHours: 18.0,
+    containmentRate: 14,
+    attributionCertainty: 100,
+    legalOutcome: "Oil Pollution Act of 1990 (OPA 90) enacted mandating double hulls; $5.07 Billion punitive damages awarded.",
+    environmentalImpact: "Death of 250,000 seabirds, 2,800 sea otters, 300 harbor seals, and entire local salmon fisheries collapsed for a decade.",
+    keyLesson: "Global mandate for double-hulled tanker construction and continuous satellite VTS passage surveillance.",
+  },
+];

@@ -1,0 +1,130 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: timescale/timescaledb-ha:pg16
+    container_name: sahayya_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-sahayya_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-sahayya_secure_password_2026}
+      POSTGRES_DB: ${POSTGRES_DB:-sahayya_db}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/home/postgres/pgdata/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-sahayya_user} -d ${POSTGRES_DB:-sahayya_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: sahayya_redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  minio:
+    image: minio/minio:latest
+    container_name: sahayya_minio
+    restart: always
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-sahayya_minio_admin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-sahayya_minio_secret_2026}
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: sahayya_api
+    restart: always
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-sahayya_user}:${POSTGRES_PASSWORD:-sahayya_secure_password_2026}@postgres:5432/${POSTGRES_DB:-sahayya_db}
+      REDIS_URL: redis://redis:6379/0
+      MINIO_ENDPOINT: minio:9000
+      MINIO_ACCESS_KEY: ${MINIO_ROOT_USER:-sahayya_minio_admin}
+      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-sahayya_minio_secret_2026}
+      MINIO_BUCKET_NAME: sahayya-reports
+      MINIO_SECURE: "false"
+      SECRET_KEY: ${SECRET_KEY:-sahayya_maritime_defense_jwt_secret_key_2026_india}
+      ALGORITHM: HS256
+      ACCESS_TOKEN_EXPIRE_MINUTES: 1440
+      CORS_ORIGINS: "http://localhost:5173,http://127.0.0.1:5173,http://localhost:3000"
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+
+  celery_worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: sahayya_celery_worker
+    restart: always
+    command: celery -A app.core.celery_app worker --loglevel=info
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-sahayya_user}:${POSTGRES_PASSWORD:-sahayya_secure_password_2026}@postgres:5432/${POSTGRES_DB:-sahayya_db}
+      REDIS_URL: redis://redis:6379/0
+      MINIO_ENDPOINT: minio:9000
+      MINIO_ACCESS_KEY: ${MINIO_ROOT_USER:-sahayya_minio_admin}
+      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-sahayya_minio_secret_2026}
+      MINIO_BUCKET_NAME: sahayya-reports
+      MINIO_SECURE: "false"
+      SECRET_KEY: ${SECRET_KEY:-sahayya_maritime_defense_jwt_secret_key_2026_india}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+
+  frontend:
+    build:
+      context: ./Frontend
+      dockerfile: Dockerfile
+    container_name: sahayya_frontend
+    restart: always
+    ports:
+      - "5173:5173"
+    environment:
+      VITE_API_BASE_URL: http://localhost:8000
+      VITE_WS_BASE_URL: ws://localhost:8000
+    depends_on:
+      - api
+    volumes:
+      - ./Frontend:/app
+      - /app/node_modules
+
+volumes:
+  postgres_data:
+  redis_data:
+  minio_data:
