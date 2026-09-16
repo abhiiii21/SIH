@@ -62,6 +62,7 @@ export const EvidenceGraphModal: React.FC<EvidenceGraphModalProps> = ({
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
   const [evidenceData, setEvidenceData] = useState<EvidenceState | null>(null);
+  const [isExporting, setIsExporting] = useState(false);
 
   if (!vessel) return null;
 
@@ -302,6 +303,60 @@ export const EvidenceGraphModal: React.FC<EvidenceGraphModalProps> = ({
   const handleRunCounterfactual = () => {
     onClose();
     navigate(`/analysis?tab=counterfactual&vessel=${encodeURIComponent(name)}`);
+  };
+
+  const handleExportEvidenceBrief = async () => {
+    try {
+      setIsExporting(true);
+      const queryIdentifier = String(vessel.id || imo || name);
+      const response = await sahayyaApi.reports.downloadVesselEvidenceBrief({
+        identifier: queryIdentifier,
+        incident_code: "IN-MH-2026",
+        name: name,
+        vessel_type: type,
+        flag: flag,
+        lat: coords ? coords[0] : undefined,
+        lon: coords ? coords[1] : undefined,
+        speed_kts: reportedSpeed,
+        heading_deg: reportedHeading,
+        score: evidenceData?.overallScore,
+        dark_duration: evidenceData?.darkDuration,
+        hindcast_match: evidenceData?.hindcastMatch,
+        anomaly_level: evidenceData?.anomalyLevel,
+        dimensions: evidenceData?.dimensions.map((d) => ({
+          name: d.name,
+          score: d.score,
+          color: d.color,
+        })),
+      });
+
+      const blob = new Blob([response.data], { type: "application/pdf" });
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = downloadUrl;
+      const cleanName = (name || "Vessel").replace(/[^a-zA-Z0-9_-]/g, "_");
+      link.setAttribute(
+        "download",
+        `Sahayya_MaritimeForensicEvidence_${cleanName}_IMO_${imo || "UNKNOWN"}.pdf`
+      );
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(downloadUrl);
+
+      if (onExportEvidence) {
+        onExportEvidence();
+      }
+    } catch (err) {
+      console.error("Failed to generate and download evidence brief:", err);
+      const queryIdentifier = encodeURIComponent(String(vessel.id || imo || name));
+      window.open(
+        `${import.meta.env.VITE_API_BASE_URL || "http://localhost:8000"}/reports/vessel-evidence-brief/download?identifier=${queryIdentifier}&incident_code=IN-MH-2026`,
+        "_blank"
+      );
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   return (
@@ -551,16 +606,22 @@ export const EvidenceGraphModal: React.FC<EvidenceGraphModalProps> = ({
         {/* Footer Actions */}
         <div className="flex items-center justify-between px-6 py-3.5 border-t border-[#E1EEF9] bg-[#F8FBFE]">
           <button
-            onClick={() => {
-              if (onExportEvidence) onExportEvidence();
-              else {
-                alert(`Forensic dossier exported for ${name}`);
-              }
-            }}
-            className="px-3.5 py-1.5 rounded-xl border border-[#E1EEF9] bg-white hover:bg-slate-50 text-xs font-semibold text-slate-700 flex items-center gap-1.5 transition-colors cursor-pointer"
+            onClick={handleExportEvidenceBrief}
+            disabled={isExporting}
+            className="px-3.5 py-1.5 rounded-xl border border-[#E1EEF9] bg-white hover:bg-slate-50 text-xs font-semibold text-slate-700 flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-60 shadow-xs"
+            title="Download official 10-page Maritime Forensic Evidence Brief (PDF)"
           >
-            <Download className="w-3.5 h-3.5 text-slate-500" />
-            <span>Export Evidence Brief</span>
+            {isExporting ? (
+              <>
+                <Loader2 className="w-3.5 h-3.5 text-[#1E5FBF] animate-spin" />
+                <span>Generating Brief...</span>
+              </>
+            ) : (
+              <>
+                <Download className="w-3.5 h-3.5 text-slate-500" />
+                <span>Export Evidence Brief</span>
+              </>
+            )}
           </button>
 
           <div className="flex items-center gap-2">

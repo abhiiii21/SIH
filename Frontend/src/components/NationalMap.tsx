@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import { ACTIVE_INCIDENTS, ActiveIncidentRecord } from "../data/incidentData";
 import { VESSELS_DATA, VesselRecord } from "../data/vesselsData";
+import { clampToNavigableSea } from "../utils/geoBoundary";
 
 // Fix Leaflet icon URLs
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -422,15 +423,17 @@ export const NationalMap: React.FC<NationalMapProps> = ({
         })}
 
         {/* Fleet Vessels */}
-        {vessels.map((v) => (
-          <Marker
-            key={v.id}
-            position={v.coordinates}
-            icon={createVesselIcon(v.type, v.heading, false)}
-            eventHandlers={{
-              click: () => onSelectVessel(v),
-            }}
-          >
+        {vessels.map((v) => {
+          const safeCoords = clampToNavigableSea(v.coordinates[0], v.coordinates[1]);
+          return (
+            <Marker
+              key={v.id}
+              position={safeCoords}
+              icon={createVesselIcon(v.type, v.heading, false)}
+              eventHandlers={{
+                click: () => onSelectVessel(v),
+              }}
+            >
             <Popup className="custom-tactical-popup">
               <div className="p-3 w-60 text-slate-800">
                 <div className="flex items-center justify-between border-b border-slate-200 pb-1.5 mb-2">
@@ -461,7 +464,8 @@ export const NationalMap: React.FC<NationalMapProps> = ({
               </div>
             </Popup>
           </Marker>
-        ))}
+          );
+        })}
       </MapContainer>
 
       {/* Compass "N" Top Right */}

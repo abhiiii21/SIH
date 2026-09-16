@@ -300,7 +300,7 @@ export const MapPage: React.FC = () => {
         <div className="flex items-center gap-3">
           <div className="hidden lg:flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span>AIS Live Feeds: Active (142 Vessels)</span>
+            <span>AIS Live Feeds: Active (30 Vessels)</span>
           </div>
 
           <button
@@ -415,7 +415,7 @@ export const MapPage: React.FC = () => {
                     Vessels Tracked
                   </div>
                   <div className="text-base font-black text-[#0B2545] leading-none">
-                    142 Vessels
+                    30 Vessels
                   </div>
                 </div>
               </div>

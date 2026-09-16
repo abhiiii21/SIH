@@ -377,7 +377,7 @@ Please provide a concise, high-priority maritime intelligence dossier in JSON fo
                 f"If suspicion arises, tasking ICGS Vikram or ICGS Samarth for inspection on VHF Channel 16 is advised."
             )
         return (
-            f"[Sahayya AI Officer • {self.model}]: Telemetry across 142 vessels in the Indian Exclusive Economic Zone is "
+            f"[Sahayya AI Officer • {self.model}]: Telemetry across 30 vessels in the Indian Exclusive Economic Zone is "
             f"being continuously correlated with OpenDrift hydrodynamic models. For '{prompt}', all transponder feeds "
             f"and synthetic aperture radar passes remain indexed."
         )

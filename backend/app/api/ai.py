@@ -58,7 +58,7 @@ async def update_ai_config(body: AIConfigUpdate):
 
 @router.get("/vessels/{vessel_id}/analysis")
 async def analyze_vessel_by_id(vessel_id: int, db: AsyncSession = Depends(get_db)):
-    """Generate dynamic Ollama AI intelligence analysis for a specific vessel from the 142 fleet."""
+    """Generate dynamic Ollama AI intelligence analysis for a specific vessel from the 30 fleet."""
     stmt = (
         select(Vessel)
         .options(selectinload(Vessel.asi_events), selectinload(Vessel.positions))

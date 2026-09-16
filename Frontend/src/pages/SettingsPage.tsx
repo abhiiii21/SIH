@@ -692,7 +692,7 @@ export const SettingsPage: React.FC = () => {
                             AI Maritime Intelligence &amp; LLM Keys
                           </h2>
                           <p className="text-xs text-slate-500">
-                            Configure Google AI (Gemini 3.6 Flash) cloud API key and local/hosted Ollama for the 142 vessels fleet intelligence.
+                            Configure Google AI (Gemini 3.6 Flash) cloud API key and local/hosted Ollama for the 30 vessels fleet intelligence.
                           </p>
                         </div>
                       </div>
@@ -856,7 +856,7 @@ export const SettingsPage: React.FC = () => {
                       {/* Info Banner */}
                       <div className="p-3 rounded-xl bg-purple-50/70 border border-purple-200/80 text-[11px] text-purple-900 leading-relaxed">
                         <span className="font-bold">Automatic Failover Strategy: </span>
-                        The Sahayya maritime intelligence engine prioritizes local Ollama. If Ollama is offline, it immediately routes all 142 vessels kinematic analysis and chat interrogation through Google AI (Gemini 3.5 Flash). If both are unavailable, the embedded Coast Guard heuristic rules engine produces uninterrupted forensic assessments.
+                        The Sahayya maritime intelligence engine prioritizes local Ollama. If Ollama is offline, it immediately routes all 30 vessels kinematic analysis and chat interrogation through Google AI (Gemini 3.5 Flash). If both are unavailable, the embedded Coast Guard heuristic rules engine produces uninterrupted forensic assessments.
                       </div>
 
                       <div className="pt-2 flex items-center justify-end gap-3">

@@ -20,6 +20,7 @@ import {
   MapPin,
 } from "lucide-react";
 import { VesselRecord, VesselType } from "../data/vesselsData";
+import { clampToNavigableSea } from "../utils/geoBoundary";
 
 // Fix Leaflet default marker icons
 import iconUrl from "leaflet/dist/images/marker-icon.png";
@@ -358,10 +359,11 @@ export const VesselsMap: React.FC<VesselsMapProps> = ({
           {/* Filtered AIS Vessel Markers */}
           {vessels.map((v) => {
             const isSelected = selectedVessel?.id === v.id;
+            const safeCoords = clampToNavigableSea(v.coordinates[0], v.coordinates[1]);
             return (
               <Marker
                 key={v.id}
-                position={v.coordinates}
+                position={safeCoords}
                 icon={createVesselMapIcon(v, isSelected)}
                 eventHandlers={{
                   click: () => onSelectVessel(v),

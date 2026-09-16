@@ -149,7 +149,7 @@ export const VesselsPage: React.FC = () => {
   const [vesselsList, setVesselsList] = useState<VesselRecord[]>(VESSELS_DATA);
 
   useEffect(() => {
-    sahayyaApi.vessels.list({ limit: 150 })
+    sahayyaApi.vessels.list({ limit: 50 })
       .then((apiVessels) => {
         if (apiVessels && apiVessels.length > 0) {
           const typeMap: Record<string, VesselType> = {
@@ -386,7 +386,7 @@ export const VesselsPage: React.FC = () => {
     activeAsiFilter,
   ]);
 
-  // Active Selected Vessel Object (Dynamically retrieved from all 142 vessels)
+  // Active Selected Vessel Object (Dynamically retrieved from 30 vessels)
   const selectedVessel = useMemo(() => {
     return (
       vesselsList.find((v) => v.id === selectedVesselId) ||
@@ -456,7 +456,7 @@ export const VesselsPage: React.FC = () => {
     );
   };
 
-  // Nearby vessels dynamically calculated from live 142 vessels dataset sorted by distance to incident
+  // Nearby vessels dynamically calculated from live 30 vessels dataset sorted by distance to incident
   const nearbyVessels = useMemo(() => {
     return [...vesselsList]
       .sort((a, b) => a.distanceKm - b.distanceKm)
@@ -592,7 +592,7 @@ export const VesselsPage: React.FC = () => {
 
           {/* Bell */}
           <button
-            onClick={() => triggerToast("AIS Real-Time Feeds: 142 Vessels actively synchronized.")}
+            onClick={() => triggerToast("AIS Real-Time Feeds: 30 Vessels actively synchronized.")}
             className="w-9 h-9 rounded-xl border border-[#E1EEF9] hover:bg-[#F0F7FD] flex items-center justify-center text-slate-600 transition-colors cursor-pointer relative"
           >
             <Bell className="w-4 h-4" />

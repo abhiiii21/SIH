@@ -13,6 +13,7 @@ from app.models import (
     EnvironmentalReading, Port, CoastGuardAsset,
     ResponseAction, PriorityZone, RecoveryRecord, Report
 )
+from app.services.geo_boundary import ensure_navigable_water
 
 
 def generate_blob_polygon(
@@ -144,45 +145,41 @@ async def seed_database():
         # Tankers: 8, Bulk Carriers: 6, Container Ships: 7, General Cargo: 5, Other: 4
         now = datetime.now(timezone.utc)
         vessel_definitions = [
-            # 8 Tankers (0..7)
-            ("MT Pacific Voyager", "tanker", "Gabon", 2008, "9438200", "636020564", 72.48, 18.76, 2.1, 208.4),
-            ("MT Ocean Glory", "tanker", "Panama", 2014, "9654123", "354987000", 72.24, 18.95, 9.8, 45.0),
-            ("MT Sindhu Pride", "tanker", "India", 2018, "9781234", "419000123", 72.82, 18.62, 11.2, 120.0),
-            ("MT Persian Pearl", "tanker", "Marshall Islands", 2012, "9543210", "538000456", 72.15, 18.45, 12.5, 315.0),
-            ("MT Nippon Maru", "tanker", "Singapore", 2019, "9876543", "563000789", 71.95, 19.12, 13.4, 60.0),
-            ("MT Nordic Star", "tanker", "Liberia", 2016, "9723456", "636000987", 71.65, 18.25, 14.1, 180.0),
-            ("MT Arabian Sun", "tanker", "Bahamas", 2015, "9687412", "311000654", 71.40, 19.35, 13.8, 225.0),
-            ("MT Kaveri Spirit", "tanker", "India", 2020, "9898765", "419000456", 76.08, 9.86, 1.8, 190.0),
-
-            # 6 Bulk Carriers (8..13)
-            ("MV Iron Baron", "bulk_carrier", "Panama", 2011, "9512345", "354000111", 72.42, 18.72, 12.8, 38.0),
-            ("MV Gujarat Glory", "bulk_carrier", "India", 2017, "9754321", "419000789", 72.18, 19.05, 13.0, 15.0),
-            ("MV Deccan Miner", "bulk_carrier", "Malta", 2013, "9623456", "248000222", 72.95, 18.35, 11.8, 145.0),
-            ("MV Baltic Carrier", "bulk_carrier", "Liberia", 2015, "9712345", "636000333", 71.85, 18.15, 12.4, 210.0),
-            ("MV Cape Horizon", "bulk_carrier", "Singapore", 2020, "9901234", "563000444", 71.25, 19.45, 14.0, 330.0),
-            ("MV Steel Trader", "bulk_carrier", "India", 2016, "9734567", "419000888", 73.25, 17.95, 12.6, 95.0),
-
-            # 7 Container Ships (14..20)
-            ("C/V Chennai Express", "container", "India", 2018, "9823456", "419000321", 72.62, 18.88, 15.2, 42.0),
-            ("C/V Bharat Bridge", "container", "Singapore", 2016, "9745678", "563000555", 72.10, 18.52, 16.5, 175.0),
-            ("C/V Mumbai Gateway", "container", "India", 2021, "9923456", "419000654", 72.75, 19.18, 15.8, 25.0),
-            ("C/V Indus Pioneer", "container", "Panama", 2014, "9678901", "354000777", 71.70, 18.90, 17.2, 110.0),
-            ("C/V Orient Trader", "container", "Liberia", 2017, "9789012", "636000888", 71.35, 18.40, 16.0, 240.0),
-            ("C/V Pearl Bridge", "container", "Marshall Islands", 2019, "9838878", "538000999", 70.95, 19.25, 17.0, 305.0),
-            ("C/V Kochi Star", "container", "India", 2015, "9701234", "419000987", 83.28, 17.60, 11.2, 55.0),
-
-            # 5 General Cargo (21..25)
-            ("MV Goa Trader", "general_cargo", "India", 2012, "9567890", "419000555", 72.85, 18.92, 10.5, 75.0),
-            ("MV Malabar Coast", "general_cargo", "India", 2016, "9756789", "419000222", 72.35, 18.25, 11.0, 160.0),
-            ("MV Konkan Pioneer", "general_cargo", "Panama", 2014, "9645678", "354000333", 71.80, 19.20, 10.8, 280.0),
-            ("MV Coromandel Sea", "general_cargo", "Singapore", 2018, "9845678", "563000222", 80.45, 13.35, 11.5, 30.0),
-            ("MV Andaman Trader", "general_cargo", "India", 2015, "9723890", "419000777", 69.76, 22.90, 3.4, 60.0),
-
-            # 4 Specialized / Other (26..29)
-            ("RV Sagar Kanya", "other", "India", 2010, "9456789", "419000001", 72.65, 18.65, 8.2, 135.0),
-            ("Tug Bhim", "other", "India", 2019, "9887766", "419000002", 72.78, 18.82, 7.5, 45.0),
-            ("Offshore Supporter IV", "other", "Panama", 2017, "9776655", "354000999", 72.38, 18.70, 9.0, 220.0),
-            ("Patrol Alpha", "other", "India", 2022, "9998877", "419000999", 72.58, 18.75, 18.5, 310.0),
+            # Tankers (8)
+            ('MT Pacific Voyager', 'tanker', 'Gabon', 2008, '9438200', '636020564', 72.48, 18.76, 2.1, 208.4),
+            ('MT Ocean Glory', 'tanker', 'Panama', 2014, '9654123', '354987000', 72.24, 18.95, 9.8, 45.0),
+            ('MT Sindhu Pride', 'tanker', 'India', 2018, '9781234', '419000123', 72.38, 18.62, 11.2, 120.0),
+            ('MT Persian Pearl', 'tanker', 'Marshall Islands', 2012, '9543210', '538000456', 72.15, 18.45, 12.5, 315.0),
+            ('MT Nippon Maru', 'tanker', 'Singapore', 2019, '9876543', '563000789', 71.95, 19.12, 13.4, 60.0),
+            ('MT Nordic Star', 'tanker', 'Liberia', 2016, '9723456', '636000987', 71.65, 18.25, 14.1, 180.0),
+            ('MT Arabian Sun', 'tanker', 'Bahamas', 2015, '9687412', '311000654', 71.40, 19.35, 13.8, 225.0),
+            ('MT Kaveri Spirit', 'tanker', 'India', 2020, '9898765', '419000456', 75.80, 9.86, 11.8, 190.0),
+            # Bulk Carriers (6)
+            ('MV Iron Baron', 'bulk_carrier', 'Panama', 2011, '9512345', '354000111', 72.42, 18.72, 12.8, 38.0),
+            ('MV Gujarat Glory', 'bulk_carrier', 'India', 2017, '9754321', '419000789', 69.10, 21.40, 12.2, 160.0),
+            ('MV Deccan Miner', 'bulk_carrier', 'Malta', 2013, '9623456', '248000222', 72.35, 18.35, 11.8, 145.0),
+            ('MV Baltic Carrier', 'bulk_carrier', 'Liberia', 2015, '9712345', '636000333', 71.85, 18.15, 12.4, 210.0),
+            ('MV Cape Horizon', 'bulk_carrier', 'Singapore', 2020, '9901234', '563000444', 71.25, 19.45, 14.0, 330.0),
+            ('MV Steel Trader', 'bulk_carrier', 'India', 2016, '9734567', '419000888', 72.25, 17.95, 12.6, 95.0),
+            # General Cargo (6)
+            ('MV Vishva Nidhi', 'general_cargo', 'India', 2020, '9800068', '419700068', 72.32, 18.82, 10.2, 45.0),
+            ('MV Goa Trader', 'general_cargo', 'India', 2012, '9567890', '419000555', 72.45, 18.92, 10.5, 75.0),
+            ('MV Malabar Coast', 'general_cargo', 'India', 2016, '9756789', '419000222', 72.35, 18.25, 11.0, 160.0),
+            ('MV Konkan Pioneer', 'general_cargo', 'Panama', 2014, '9645678', '354000333', 71.80, 19.20, 10.8, 280.0),
+            ('MV Coromandel Sea', 'general_cargo', 'Singapore', 2018, '9845678', '563000222', 80.65, 13.20, 11.5, 30.0),
+            ('MV Andaman Trader', 'general_cargo', 'India', 2015, '9723890', '419000777', 93.15, 11.60, 10.4, 60.0),
+            # Container Ships (7)
+            ('C/V Chennai Express', 'container', 'India', 2018, '9823456', '419000321', 72.32, 18.88, 15.2, 42.0),
+            ('C/V Bharat Bridge', 'container', 'Singapore', 2016, '9745678', '563000555', 72.10, 18.52, 16.5, 175.0),
+            ('C/V Mumbai Gateway', 'container', 'India', 2021, '9923456', '419000654', 72.35, 19.18, 15.8, 25.0),
+            ('C/V Indus Pioneer', 'container', 'Panama', 2014, '9678901', '354000777', 71.70, 18.90, 17.2, 110.0),
+            ('C/V Orient Trader', 'container', 'Liberia', 2017, '9789012', '636000888', 71.35, 18.40, 16.0, 240.0),
+            ('C/V Pearl Bridge', 'container', 'Marshall Islands', 2019, '9838878', '538000999', 70.95, 19.25, 17.0, 305.0),
+            ('C/V Kochi Star', 'container', 'India', 2015, '9701234', '419000987', 83.65, 17.50, 11.2, 55.0),
+            # Specialized & Patrol (3)
+            ('RV Sagar Kanya', 'other', 'India', 2010, '9456789', '419000001', 72.28, 18.65, 8.2, 135.0),
+            ('Tug Bhim', 'other', 'India', 2019, '9887766', '419000002', 72.55, 18.82, 7.5, 45.0),
+            ('ICGS Vikram', 'other', 'India', 2022, '9998877', '419000999', 72.48, 18.75, 18.5, 310.0),
         ]
 
         fleet_vessels = []
@@ -209,9 +206,10 @@ async def seed_database():
                 p_time = now - timedelta(minutes=t_offset)
                 d_lat = (speed * (t_offset / 60.0) * math.cos(math.radians(heading))) / 60.0
                 d_lon = (speed * (t_offset / 60.0) * math.sin(math.radians(heading))) / 60.0
+                safe_lat, safe_lon = ensure_navigable_water(lat - d_lat, lon - d_lon)
                 all_positions.append(VesselPosition(
                     vessel_id=v_obj.id,
-                    position={"type": "Point", "coordinates": [round(lon - d_lon, 4), round(lat - d_lat, 4)]},
+                    position={"type": "Point", "coordinates": [safe_lon, safe_lat]},
                     speed_kts=speed,
                     heading_deg=heading,
                     recorded_at=p_time,

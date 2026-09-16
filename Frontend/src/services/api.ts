@@ -213,6 +213,51 @@ export const sahayyaApi = {
     },
     getDownloadUrl: (reportId: number, inline: boolean = false) =>
       `${API_BASE_URL}/reports/${reportId}/download${inline ? "?view=inline" : ""}`,
+    downloadVesselEvidenceBrief: async (params: {
+      identifier: string;
+      incident_code?: string;
+      speed_kts?: number;
+      heading_deg?: number;
+      lat?: number;
+      lon?: number;
+      vessel_type?: string;
+      flag?: string;
+      name?: string;
+      score?: number;
+      cpa_km?: number;
+      dark_duration?: string;
+      hindcast_match?: string;
+      anomaly_level?: string;
+      dimensions?: Array<{ name: string; score: number; color?: string }>;
+    }) => {
+      const queryParams: Record<string, any> = {
+        identifier: params.identifier,
+        incident_code: params.incident_code || "IN-MH-2026",
+        speed_kts: params.speed_kts,
+        heading_deg: params.heading_deg,
+        lat: params.lat,
+        lon: params.lon,
+        vessel_type: params.vessel_type,
+        flag: params.flag,
+        name: params.name,
+        score: params.score,
+        cpa_km: params.cpa_km,
+        dark_duration: params.dark_duration,
+        hindcast_match: params.hindcast_match,
+        anomaly_level: params.anomaly_level,
+        view: "attachment",
+      };
+      if (params.dimensions) {
+        queryParams.dimensions_json = JSON.stringify(params.dimensions);
+      }
+      Object.keys(queryParams).forEach((k) => queryParams[k] === undefined && delete queryParams[k]);
+
+      const response = await apiClient.get("/reports/vessel-evidence-brief/download", {
+        params: queryParams,
+        responseType: "blob",
+      });
+      return response;
+    },
   },
 
   // Map fleet

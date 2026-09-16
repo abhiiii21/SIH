@@ -1144,13 +1144,13 @@ export const AnalysisPage: React.FC = () => {
                           National EEZ Fleet Surveillance Audit
                         </h4>
                         <p className="text-xs text-slate-500 mb-4 leading-relaxed">
-                          Comprehensive status report on all 142 vessels in the Mumbai Maritime Search &amp; Rescue Region, including dark vessel incidents, AIS gap logs, and high-risk tanker routes.
+                          Comprehensive status report on all 30 vessels in the Mumbai Maritime Search &amp; Rescue Region, including dark vessel incidents, AIS gap logs, and high-risk tanker routes.
                         </p>
 
                         <div className="space-y-2 mb-4 text-xs font-mono bg-[#F8FBFE] p-3 rounded-xl border border-[#E1EEF9]">
                           <div className="flex justify-between">
                             <span className="text-slate-500 font-sans">Total Tracked:</span>
-                            <span className="font-bold text-[#0B2545]">142 Vessels</span>
+                            <span className="font-bold text-[#0B2545]">30 Vessels</span>
                           </div>
                           <div className="flex justify-between">
                             <span className="text-slate-500 font-sans">Dark Anomaly Vessels:</span>

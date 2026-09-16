@@ -8,6 +8,7 @@ from app.core.database import get_db
 from app.models.incident import Incident, SpillGeometry
 from app.models.vessel import Vessel
 from app.schemas.vessel import VesselOut, ASIEventOut
+from app.services.geo_boundary import ensure_navigable_water
 
 router = APIRouter(prefix="/map", tags=["Map"])
 
@@ -75,12 +76,17 @@ async def get_map_vessels(
         )
         if v.positions:
             latest_p = max(v.positions, key=lambda p: p.recorded_at)
-            v_out.latest_position = latest_p.position
+            pos_dict = dict(latest_p.position) if latest_p.position else None
+            if pos_dict and "coordinates" in pos_dict:
+                coords = pos_dict["coordinates"]
+                safe_lat, safe_lon = ensure_navigable_water(coords[1], coords[0])
+                pos_dict["coordinates"] = [safe_lon, safe_lat]
+            v_out.latest_position = pos_dict
             v_out.speed_kts = latest_p.speed_kts
             v_out.heading_deg = latest_p.heading_deg
 
-            if parsed_bounds:
-                coords = latest_p.position.get("coordinates", [0, 0])
+            if parsed_bounds and pos_dict:
+                coords = pos_dict.get("coordinates", [0, 0])
                 lon, lat = coords[0], coords[1]
                 min_lon, min_lat, max_lon, max_lat = parsed_bounds
                 if not (min_lon <= lon <= max_lon and min_lat <= lat <= max_lat):
