@@ -1654,7 +1654,9 @@ def generate_vessel_evidence_brief_pdf(
     pdf_bytes = buffer.getvalue()
     pdf_hash = hashlib.sha256(pdf_bytes).hexdigest()
 
-    filename = f"Sahayya_EvidenceBrief_{v_name.replace(' ', '_')}_{v_imo}_{now_utc.strftime('%Y%m%d_%H%M%S')}.pdf"
+    import re
+    safe_vname = re.sub(r'[^\w-]', '_', v_name)
+    filename = f"Sahayya_EvidenceBrief_{safe_vname}_{v_imo}_{now_utc.strftime('%Y%m%d_%H%M%S')}.pdf"
     file_url = storage_service.upload_file(filename=filename, data=pdf_bytes, content_type="application/pdf")
 
     return {

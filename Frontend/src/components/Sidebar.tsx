@@ -79,11 +79,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <div className="flex items-center justify-between border-b border-zinc-800 pb-2">
           <div className="flex items-center space-x-2">
             <Upload className="h-4 w-4 text-zinc-300" />
-            <h2 className="text-xs font-mono font-semibold tracking-wider text-zinc-200 uppercase">
+            <h2 className="text-xs font-display font-semibold tracking-wider text-zinc-200 uppercase">
               SAR Image Ingestion
             </h2>
           </div>
-          <span className="text-[10px] font-mono text-zinc-300 bg-zinc-800 px-1.5 py-0.5 rounded border border-zinc-700">
+          <span className="text-[10px] font-mono font-medium text-zinc-300 bg-zinc-800 px-1.5 py-0.5 rounded border border-zinc-700">
             GEOTIFF / GRD
           </span>
         </div>
@@ -109,10 +109,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
             className="hidden"
           />
           <Upload className="h-4 w-4 text-zinc-400 mb-1" />
-          <p className="text-xs font-medium text-zinc-300 font-mono">
+          <p className="text-xs font-medium text-zinc-300 font-body">
             Drop Sentinel-1 GeoTIFF here
           </p>
-          <p className="text-[10px] text-zinc-500 font-mono mt-0.5">
+          <p className="text-[11px] text-zinc-400 font-body mt-0.5">
             Preserves affine transform &amp; WGS84 CRS
           </p>
         </div>
@@ -121,7 +121,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <button
           onClick={onLoadSample}
           disabled={isLoading}
-          className="w-full flex items-center justify-center space-x-2 rounded border border-zinc-700 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 py-2 px-3 text-xs font-mono font-medium transition active:scale-[0.98] disabled:opacity-50 touch-target"
+          className="w-full flex items-center justify-center space-x-2 rounded border border-zinc-700 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 py-2 px-3 text-xs font-body font-semibold tracking-wider transition active:scale-[0.98] disabled:opacity-50 touch-target"
         >
           <Play className="h-3.5 w-3.5 text-zinc-300 fill-zinc-300" />
           <span>LOAD INCIDENT SAMPLE (MUMBAI HIGH)</span>
@@ -134,22 +134,22 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <div className="flex items-center justify-between border-b border-zinc-800 pb-2">
             <div className="flex items-center space-x-2">
               <Activity className="h-4 w-4 text-red-400" />
-              <h2 className="text-xs font-mono font-semibold tracking-wider text-zinc-200 uppercase">
+              <h2 className="text-xs font-display font-semibold tracking-wider text-zinc-200 uppercase">
                 SAR Radar Telemetry
               </h2>
             </div>
-            <span className="text-[10px] font-mono text-red-400 bg-red-950/40 px-1.5 py-0.5 rounded border border-red-900/60">
+            <span className="text-[10px] font-mono font-semibold text-red-400 bg-red-950/40 px-1.5 py-0.5 rounded border border-red-900/60">
               {spillData.summary.total_slicks} POLIES
             </span>
           </div>
 
-          <div className="grid grid-cols-2 gap-2 text-xs font-mono">
+          <div className="grid grid-cols-2 gap-2 text-xs">
             {/* Total Area */}
             <div className="rounded bg-zinc-950 p-2 border border-zinc-800/80">
-              <span className="text-[10px] text-zinc-400 uppercase">
+              <span className="text-[10px] font-body text-zinc-400 uppercase font-medium">
                 Observed Area
               </span>
-              <div className="text-sm font-bold text-red-400 mt-0.5">
+              <div className="text-sm font-bold text-red-400 font-mono mt-0.5">
                 {spillData.summary.total_area_km2.toFixed(2)}{" "}
                 <span className="text-[10px] text-zinc-400 font-normal">
                   km²
@@ -159,10 +159,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
             {/* Estimated Volume */}
             <div className="rounded bg-zinc-950 p-2 border border-zinc-800/80">
-              <span className="text-[10px] text-zinc-400 uppercase">
+              <span className="text-[10px] font-body text-zinc-400 uppercase font-medium">
                 Est. Crude Volume
               </span>
-              <div className="text-sm font-bold text-amber-400 mt-0.5">
+              <div className="text-sm font-bold text-amber-400 font-mono mt-0.5">
                 {spillData.summary.estimated_volume_m3.toLocaleString()}{" "}
                 <span className="text-[10px] text-zinc-400 font-normal">
                   m³
@@ -172,10 +172,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
             {/* Centroid Coordinates */}
             <div className="rounded bg-zinc-950 p-2 border border-zinc-800/80 col-span-2">
-              <span className="text-[10px] text-zinc-400 uppercase">
+              <span className="text-[10px] font-body text-zinc-400 uppercase font-medium">
                 Centroid (WGS-84 Lat/Lon)
               </span>
-              <div className="text-xs font-bold text-zinc-200 mt-0.5">
+              <div className="text-xs font-semibold text-zinc-200 font-mono mt-0.5">
                 {spillData.summary.primary_centroid[0].toFixed(4)}°N,{" "}
                 {spillData.summary.primary_centroid[1].toFixed(4)}°E
               </div>
@@ -183,20 +183,20 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
             {/* Perimeter */}
             <div className="rounded bg-zinc-950 p-2 border border-zinc-800/80">
-              <span className="text-[10px] text-zinc-400 uppercase">
+              <span className="text-[10px] font-body text-zinc-400 uppercase font-medium">
                 Perimeter
               </span>
-              <div className="text-xs font-semibold text-zinc-200 mt-0.5">
+              <div className="text-xs font-semibold text-zinc-200 font-mono mt-0.5">
                 {spillData.summary.total_perimeter_km.toFixed(1)} km
               </div>
             </div>
 
             {/* Sensor */}
             <div className="rounded bg-zinc-950 p-2 border border-zinc-800/80">
-              <span className="text-[10px] text-zinc-400 uppercase">
+              <span className="text-[10px] font-body text-zinc-400 uppercase font-medium">
                 Radar Sensor
               </span>
-              <div className="text-xs font-semibold text-zinc-300 mt-0.5 truncate">
+              <div className="text-xs font-semibold text-zinc-300 font-mono mt-0.5 truncate">
                 {spillData.summary.polarization}
               </div>
             </div>
@@ -209,75 +209,75 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <div className="flex items-center justify-between border-b border-zinc-800 pb-2">
           <div className="flex items-center space-x-2">
             <Wind className="h-4 w-4 text-zinc-300" />
-            <h2 className="text-xs font-mono font-semibold tracking-wider text-zinc-200 uppercase">
+            <h2 className="text-xs font-display font-semibold tracking-wider text-zinc-200 uppercase">
               Environmental Vectors
             </h2>
           </div>
-          <span className="text-[10px] font-mono text-zinc-300 bg-zinc-800 px-1.5 py-0.5 rounded border border-zinc-700">
+          <span className="text-[10px] font-mono font-medium text-zinc-300 bg-zinc-800 px-1.5 py-0.5 rounded border border-zinc-700">
             OPEN-METEO
           </span>
         </div>
 
         {weatherData ? (
-          <div className="grid grid-cols-2 gap-2 text-xs font-mono">
+          <div className="grid grid-cols-2 gap-2 text-xs">
             {/* 10m Surface Wind */}
             <div className="rounded bg-zinc-950 p-2 border border-zinc-800/80">
-              <div className="flex items-center justify-between text-[10px] text-zinc-400">
+              <div className="flex items-center justify-between text-[10px] font-body text-zinc-400">
                 <span>10m SURFACE WIND</span>
                 <Wind className="w-3 h-3 text-zinc-400" />
               </div>
-              <div className="text-xs font-bold text-zinc-100 mt-1">
+              <div className="text-xs font-bold text-zinc-100 font-mono mt-1">
                 {weatherData.wind_speed_ms.toFixed(1)} m/s
                 <span className="text-[10px] text-zinc-400 font-normal ml-1">
                   ({(weatherData.wind_speed_ms * 1.94384).toFixed(1)} kts)
                 </span>
               </div>
-              <div className="text-[10px] text-zinc-400 mt-0.5">
+              <div className="text-[10px] font-mono text-zinc-400 mt-0.5">
                 From {weatherData.wind_direction_deg}°
               </div>
             </div>
 
             {/* Surface Current */}
             <div className="rounded bg-zinc-950 p-2 border border-zinc-800/80">
-              <div className="flex items-center justify-between text-[10px] text-zinc-400">
+              <div className="flex items-center justify-between text-[10px] font-body text-zinc-400">
                 <span>OCEAN CURRENT</span>
                 <Compass className="w-3 h-3 text-zinc-400" />
               </div>
-              <div className="text-xs font-bold text-zinc-100 mt-1">
+              <div className="text-xs font-bold text-zinc-100 font-mono mt-1">
                 {weatherData.current_speed_ms.toFixed(2)} m/s
                 <span className="text-[10px] text-zinc-400 font-normal ml-1">
                   ({(weatherData.current_speed_ms * 1.94384).toFixed(1)} kts)
                 </span>
               </div>
-              <div className="text-[10px] text-zinc-400 mt-0.5">
+              <div className="text-[10px] font-mono text-zinc-400 mt-0.5">
                 Towards {weatherData.current_direction_deg}°
               </div>
             </div>
 
             {/* Waves & Temp */}
             <div className="rounded bg-zinc-950 p-2 border border-zinc-800/80">
-              <span className="text-[10px] text-zinc-400">WAVE HEIGHT</span>
-              <div className="text-xs font-semibold text-zinc-200 mt-0.5">
+              <span className="text-[10px] font-body text-zinc-400 font-medium">WAVE HEIGHT</span>
+              <div className="text-xs font-semibold text-zinc-200 font-mono mt-0.5">
                 {weatherData.wave_height_m.toFixed(1)} m
               </div>
             </div>
 
             <div className="rounded bg-zinc-950 p-2 border border-zinc-800/80">
-              <span className="text-[10px] text-zinc-400">SEA TEMP</span>
-              <div className="text-xs font-semibold text-zinc-200 mt-0.5">
+              <span className="text-[10px] font-body text-zinc-400 font-medium">SEA TEMP</span>
+              <div className="text-xs font-semibold text-zinc-200 font-mono mt-0.5">
                 {weatherData.temperature_c.toFixed(1)} °C
               </div>
             </div>
           </div>
         ) : (
-          <div className="text-xs text-zinc-500 font-mono py-2 text-center">
+          <div className="text-xs text-zinc-400 font-body py-2 text-center">
             Awaiting coordinate fix...
           </div>
         )}
 
         {/* Drift Equation Notice */}
-        <div className="rounded bg-zinc-950/80 p-2 border border-zinc-800 text-[10px] font-mono text-zinc-400">
-          <span className="text-zinc-200 font-semibold">HYDRODYNAMICS:</span>{" "}
+        <div className="rounded bg-zinc-950/80 p-2 border border-zinc-800 text-[11px] font-mono text-zinc-400">
+          <span className="text-zinc-200 font-semibold font-body">HYDRODYNAMICS:</span>{" "}
           V_drift = V_current + 0.035 × V_wind
         </div>
       </div>
@@ -287,12 +287,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <div className="flex items-center justify-between border-b border-zinc-800 pb-2">
           <div className="flex items-center space-x-2">
             <Sliders className="h-4 w-4 text-amber-400" />
-            <h2 className="text-xs font-mono font-semibold tracking-wider text-zinc-200 uppercase">
+            <h2 className="text-xs font-display font-semibold tracking-wider text-zinc-200 uppercase">
               Temporal Scrubber
             </h2>
           </div>
           <span
-            className={`text-[10px] font-mono px-1.5 py-0.5 rounded border ${
+            className={`text-[10px] font-mono font-medium px-1.5 py-0.5 rounded border ${
               timelineHours < 0
                 ? "text-amber-400 bg-amber-950/40 border-amber-900/60"
                 : timelineHours === 0
@@ -310,12 +310,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
         {/* Slider */}
         <div className="space-y-1.5">
-          <div className="flex justify-between text-[10px] font-mono text-zinc-400">
-            <span className="text-amber-400">-24h Origin</span>
-            <span className="text-zinc-200 font-bold">
+          <div className="flex justify-between text-[11px] font-body text-zinc-400">
+            <span className="text-amber-400 font-medium">-24h Origin</span>
+            <span className="text-zinc-200 font-mono font-bold">
               {timelineHours > 0 ? `+${timelineHours}h` : `${timelineHours}h`}
             </span>
-            <span className="text-blue-400">+48h Impact</span>
+            <span className="text-blue-400 font-medium">+48h Impact</span>
           </div>
           <input
             type="range"
@@ -334,7 +334,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <button
               key={preset.label}
               onClick={() => onTimelineChange(preset.value)}
-              className={`text-[10px] font-mono py-1.5 px-1 rounded border transition touch-target ${
+              className={`text-[11px] font-body py-1.5 px-1 rounded border transition touch-target ${
                 timelineHours === preset.value
                   ? "bg-zinc-800 border-zinc-500 text-zinc-100 font-semibold"
                   : "bg-zinc-950 border-zinc-800 hover:border-zinc-700 text-zinc-400 hover:text-zinc-200"
@@ -347,22 +347,22 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
         {/* Weathering progression */}
         {driftData && driftData.steps && driftData.steps.length > 0 && (
-          <div className="rounded bg-zinc-950 p-2.5 border border-zinc-800/80 space-y-1 text-[11px] font-mono">
-            <div className="flex justify-between text-zinc-400">
+          <div className="rounded bg-zinc-950 p-2.5 border border-zinc-800/80 space-y-1 text-[11px]">
+            <div className="flex justify-between text-zinc-400 font-body">
               <span>Evaporation Rate:</span>
-              <span className="text-zinc-200 font-semibold">
+              <span className="text-zinc-200 font-semibold font-mono">
                 {driftData.steps[driftData.steps.length - 1].evaporated_percentage}%
               </span>
             </div>
-            <div className="flex justify-between text-zinc-400">
+            <div className="flex justify-between text-zinc-400 font-body">
               <span>Emulsification Water:</span>
-              <span className="text-zinc-200 font-semibold">
+              <span className="text-zinc-200 font-semibold font-mono">
                 {driftData.steps[driftData.steps.length - 1].water_emulsification_percentage}%
               </span>
             </div>
-            <div className="flex justify-between text-zinc-400">
+            <div className="flex justify-between text-zinc-400 font-body">
               <span>Origin Uncertainty:</span>
-              <span className="text-amber-400 font-semibold">
+              <span className="text-amber-400 font-semibold font-mono">
                 ±{driftData.steps[driftData.steps.length - 1].uncertainty_radius_km.toFixed(1)} km
               </span>
             </div>

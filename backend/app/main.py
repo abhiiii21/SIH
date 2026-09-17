@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from sqlalchemy import select
+from sqlalchemy import select, text
 
 from app.core.config import settings
 from app.core.database import engine, Base, AsyncSessionLocal
@@ -12,7 +12,7 @@ from app.db.seed import seed_database
 from app.api import (
     auth, incidents, vessels, counterfactual,
     forecast, response, recovery, ports, reports,
-    map_fleet, websockets, ai
+    map_fleet, websockets, ai, settings as settings_api
 )
 
 
@@ -22,6 +22,10 @@ async def lifespan(app: FastAPI):
     print("Initializing Sahayya API backend...")
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+        try:
+            await conn.execute(text("ALTER TABLE users ADD COLUMN avatar_url VARCHAR(500)"))
+        except Exception:
+            pass
 
     # Check if seed data exists
     async with AsyncSessionLocal() as db:
@@ -58,10 +62,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Local reports storage static mount
+# Local storage static mounts
 LOCAL_STORAGE_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "storage", "reports")
 os.makedirs(LOCAL_STORAGE_DIR, exist_ok=True)
 app.mount("/storage/reports", StaticFiles(directory=LOCAL_STORAGE_DIR), name="reports_storage")
+
+AVATAR_STORAGE_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "storage", "avatars")
+os.makedirs(AVATAR_STORAGE_DIR, exist_ok=True)
+app.mount("/storage/avatars", StaticFiles(directory=AVATAR_STORAGE_DIR), name="avatars_storage")
 
 # Register Routers
 app.include_router(auth.router)
@@ -76,6 +84,7 @@ app.include_router(reports.router)
 app.include_router(map_fleet.router)
 app.include_router(websockets.router)
 app.include_router(ai.router)
+app.include_router(settings_api.router)
 
 
 @app.get("/", tags=["Health"])

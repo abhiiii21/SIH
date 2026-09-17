@@ -12,4 +12,5 @@ class User(Base):
     password_hash = Column(String(255), nullable=False)
     role = Column(String(50), default="coast_guard", nullable=False)  # coast_guard, port_authority, environmental_regulator, researcher, ngo, other
     organization = Column(String(255), nullable=True)
+    avatar_url = Column(String(500), nullable=True)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)

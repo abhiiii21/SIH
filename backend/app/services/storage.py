@@ -45,26 +45,29 @@ class StorageService:
         Uploads file bytes to MinIO bucket if available, else stores in local filesystem.
         Returns the file URL or relative storage path.
         """
+        import re
+        safe_filename = re.sub(r'[^\w\.-]', '_', filename)
         client = self._get_client()
         if client:
             try:
                 data_stream = io.BytesIO(data)
                 client.put_object(
                     bucket_name=settings.MINIO_BUCKET_NAME,
-                    object_name=filename,
+                    object_name=safe_filename,
                     data=data_stream,
                     length=len(data),
                     content_type=content_type,
                 )
-                return f"minio://{settings.MINIO_BUCKET_NAME}/{filename}"
+                return f"minio://{settings.MINIO_BUCKET_NAME}/{safe_filename}"
             except Exception:
                 pass
 
         # Local storage fallback
-        local_path = os.path.join(LOCAL_STORAGE_DIR, filename)
+        local_path = os.path.join(LOCAL_STORAGE_DIR, safe_filename)
+        os.makedirs(os.path.dirname(local_path), exist_ok=True)
         with open(local_path, "wb") as f:
             f.write(data)
-        return f"/storage/reports/{filename}"
+        return f"/storage/reports/{safe_filename}"
 
     def get_file_bytes(self, file_url: str) -> Optional[bytes]:
         """Fetch bytes for a given file_url."""

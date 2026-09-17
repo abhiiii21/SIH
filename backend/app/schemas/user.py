@@ -8,6 +8,7 @@ class UserBase(BaseModel):
     email: EmailStr
     role: str = "coast_guard"
     organization: Optional[str] = None
+    avatar_url: Optional[str] = None
 
 
 class UserCreate(UserBase):

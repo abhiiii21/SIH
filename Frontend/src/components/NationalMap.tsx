@@ -394,27 +394,27 @@ export const NationalMap: React.FC<NationalMapProps> = ({
                     </span>
                   </div>
 
-                  <div className="font-semibold text-xs text-[#0B2545]">{inc.name}</div>
-                  <div className="text-[10px] text-slate-500 mb-2">{inc.region}</div>
+                  <div className="font-bold text-sm text-[#0B2545] font-display">{inc.name}</div>
+                  <div className="text-xs text-slate-500 mb-2 font-body">{inc.region}</div>
 
-                  <div className="grid grid-cols-2 gap-1.5 text-[10px] bg-slate-50 p-2 rounded-lg mb-2 font-mono">
+                  <div className="grid grid-cols-2 gap-1.5 text-xs bg-slate-50 p-2.5 rounded-lg mb-2.5 font-mono">
                     <div>Area: <span className="font-bold text-rose-600">{inc.areaKm2} km²</span></div>
                     <div>Vessels: <span className="font-bold text-[#0B2545]">{inc.vesselsInAOI} in AOI</span></div>
-                    <div className="col-span-2 text-[9px] text-slate-500">
+                    <div className="col-span-2 text-[10px] text-slate-500">
                       Detected: {inc.detectedTime}
                     </div>
                   </div>
 
-                  <div className="text-[10px] text-slate-600 mb-3 line-clamp-2">
+                  <div className="text-xs sm:text-[13px] text-slate-700 mb-3 leading-relaxed font-body">
                     {inc.description}
                   </div>
 
                   <a
                     href={`/incidents/${inc.id}`}
-                    className="w-full py-1.5 rounded-lg bg-gradient-to-r from-[#1E5FBF] to-[#2E8FE8] hover:from-[#174EA6] hover:to-[#2275C6] text-white text-[11px] font-bold flex items-center justify-center gap-1.5 shadow-xs"
+                    className="w-full py-1.5 rounded-lg bg-gradient-to-r from-[#1E5FBF] to-[#2E8FE8] hover:from-[#174EA6] hover:to-[#2275C6] text-white text-xs font-semibold flex items-center justify-center gap-1.5 shadow-xs font-body"
                   >
                     <span>View Full Tactical Incident</span>
-                    <ExternalLink className="w-3 h-3" />
+                    <ExternalLink className="w-3.5 h-3.5" />
                   </a>
                 </div>
               </Popup>

@@ -5,6 +5,7 @@ export interface User {
   email: string;
   role: string;
   organization: string;
+  avatar_url?: string | null;
 }
 
 interface AuthContextType {
@@ -21,6 +22,7 @@ interface AuthContextType {
   }) => { success: boolean; error?: string };
   socialLogin: (provider: "google" | "facebook") => void;
   logout: () => void;
+  updateUser: (updatedFields: Partial<User>) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -135,6 +137,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsAuthenticated(true);
   };
 
+  const updateUser = (updatedFields: Partial<User>) => {
+    setUser((prev) => {
+      const base = prev || {
+        name: "Commander S. Kumar",
+        email: "s.kumar@indiancoastguard.gov.in",
+        role: "Coast Guard",
+        organization: "Indian Coast Guard (West HQ)",
+      };
+      const updated = { ...base, ...updatedFields };
+      localStorage.setItem("sahayya_user", JSON.stringify(updated));
+      return updated;
+    });
+  };
+
   const logout = () => {
     setUser(null);
     setIsAuthenticated(false);
@@ -151,6 +167,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         register,
         socialLogin,
         logout,
+        updateUser,
       }}
     >
       {children}

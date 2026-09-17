@@ -28,7 +28,7 @@ export const AttributionPanel: React.FC<AttributionPanelProps> = ({
         <div className="flex items-center justify-between border-b border-zinc-800 pb-2">
           <div className="flex items-center space-x-2">
             <ShieldAlert className="h-4 w-4 text-red-400" />
-            <h2 className="text-xs font-mono font-semibold tracking-wider text-zinc-200 uppercase">
+            <h2 className="text-xs font-display font-semibold tracking-wider text-zinc-200 uppercase">
               Vessel Attribution Feed
             </h2>
           </div>
@@ -39,21 +39,22 @@ export const AttributionPanel: React.FC<AttributionPanelProps> = ({
 
         {/* Primary Suspect Headline Banner */}
         {aisData && aisData.primary_suspect && (
-          <div className="rounded border border-red-900/70 bg-red-950/30 p-2.5 space-y-1.5">
-            <div className="flex items-center justify-between text-[11px] font-mono">
-              <span className="text-red-400 font-bold uppercase tracking-wider flex items-center gap-1">
+          <div className="rounded border border-red-900/70 bg-red-950/30 p-2.5 space-y-1.5 font-body">
+            <div className="flex items-center justify-between text-[11px]">
+              <span className="text-red-400 font-bold uppercase tracking-wider flex items-center gap-1 font-body">
                 <AlertTriangle className="w-3.5 h-3.5 text-red-400" />
                 PRIMARY SUSPECT IDENTIFIED
               </span>
-              <span className="text-red-300 font-bold bg-red-950/80 px-1.5 py-0.5 rounded border border-red-800 text-[10px]">
+              <span className="text-red-300 font-bold font-mono bg-red-950/80 px-1.5 py-0.5 rounded border border-red-800 text-[10px]">
                 {aisData.primary_suspect.liability_probability_pct}% LIABILITY
               </span>
             </div>
-            <div className="text-xs font-bold text-zinc-100 font-mono">
-              {aisData.primary_suspect.vessel_name} ({aisData.primary_suspect.imo})
+            <div className="text-xs font-bold text-zinc-100 font-body">
+              {aisData.primary_suspect.vessel_name}{" "}
+              <span className="font-mono text-[11px] font-normal text-zinc-300">({aisData.primary_suspect.imo})</span>
             </div>
-            <div className="text-[10px] text-zinc-400 font-mono">
-              {aisData.primary_suspect.vessel_type} • {aisData.primary_suspect.flag} • CPA: {aisData.primary_suspect.closest_approach_km} km
+            <div className="text-[10px] text-zinc-400 font-body">
+              {aisData.primary_suspect.vessel_type} • {aisData.primary_suspect.flag} • CPA: <span className="font-mono">{aisData.primary_suspect.closest_approach_km} km</span>
             </div>
           </div>
         )}
@@ -62,7 +63,7 @@ export const AttributionPanel: React.FC<AttributionPanelProps> = ({
         <button
           onClick={onOpenReportModal}
           disabled={!aisData || aisData.ranked_suspects.length === 0}
-          className="w-full flex items-center justify-center space-x-2 rounded border border-zinc-700 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 py-2.5 px-3 text-xs font-mono font-semibold transition active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed touch-target"
+          className="w-full flex items-center justify-center space-x-2 rounded border border-zinc-700 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 py-2.5 px-3 text-xs font-body font-semibold tracking-wider transition active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed touch-target cursor-pointer"
         >
           <FileText className="h-4 w-4 text-zinc-300" />
           <span>GENERATE FORENSIC EVIDENCE BRIEF</span>
@@ -71,13 +72,13 @@ export const AttributionPanel: React.FC<AttributionPanelProps> = ({
 
       {/* RANKED SUSPECT VESSEL CARDS */}
       <div className="space-y-3">
-        <div className="flex items-center justify-between px-1 text-[11px] font-mono text-zinc-400 uppercase">
+        <div className="flex items-center justify-between px-1 text-[11px] font-body font-semibold text-zinc-400 uppercase tracking-wider">
           <span>Candidate Vessels</span>
           <span>Liability Index</span>
         </div>
 
         {isLoading ? (
-          <div className="rounded border border-zinc-800 bg-zinc-900/60 p-6 text-center text-xs font-mono text-zinc-400 animate-pulse">
+          <div className="rounded border border-zinc-800 bg-zinc-900/60 p-6 text-center text-xs font-body text-zinc-400 animate-pulse">
             Correlating AIS trajectories with hydrodynamic corridor...
           </div>
         ) : aisData && aisData.ranked_suspects.length > 0 ? (
@@ -99,11 +100,11 @@ export const AttributionPanel: React.FC<AttributionPanelProps> = ({
                 }`}
               >
                 {/* Header: Rank + Name + Liability % */}
-                <div className="flex items-start justify-between font-mono">
+                <div className="flex items-start justify-between font-body">
                   <div>
                     <div className="flex items-center space-x-1.5">
                       <span
-                        className={`text-[10px] font-bold px-1.5 py-0.2 rounded border ${
+                        className={`text-[10px] font-bold font-body px-1.5 py-0.2 rounded border ${
                           isPrimary
                             ? "bg-red-950/60 text-red-400 border-red-900/80"
                             : isModerate
@@ -118,18 +119,18 @@ export const AttributionPanel: React.FC<AttributionPanelProps> = ({
                           ? "MODERATE"
                           : "TRANSIT"}
                       </span>
-                      <span className="text-[10px] text-zinc-400">
+                      <span className="text-[10px] text-zinc-400 font-body">
                         {vessel.flag}
                       </span>
                     </div>
-                    <div className="text-xs font-bold text-zinc-100 mt-1">
+                    <div className="text-xs font-bold font-body text-zinc-100 mt-1">
                       {vessel.vessel_name}
                     </div>
                   </div>
 
                   <div className="text-right">
                     <span
-                      className={`text-sm font-bold ${
+                      className={`text-sm font-bold font-mono ${
                         isPrimary
                           ? "text-red-400"
                           : isModerate
@@ -201,25 +202,25 @@ export const AttributionPanel: React.FC<AttributionPanelProps> = ({
 
                 {/* Anomaly Badges */}
                 {vessel.anomalies.length > 0 && (
-                  <div className="mt-2 space-y-1">
+                  <div className="mt-2 space-y-1.5">
                     {vessel.anomalies.map((anom, aIdx) => (
                       <div
                         key={aIdx}
-                        className={`text-[10px] font-mono p-1 rounded border flex items-start space-x-1.5 ${
+                        className={`text-xs font-mono p-1.5 rounded border flex items-start space-x-1.5 leading-relaxed ${
                           anom.severity === "CRITICAL"
                             ? "bg-zinc-950 border-l-2 border-l-red-600 border-zinc-800 text-red-300"
                             : "bg-zinc-950 border-l-2 border-l-amber-500 border-zinc-800 text-amber-300"
                         }`}
                       >
-                        <AlertTriangle className="w-3 h-3 shrink-0 mt-0.5 text-zinc-400" />
-                        <span>{anom.description}</span>
+                        <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5 text-zinc-400" />
+                        <span className="font-body text-xs">{anom.description}</span>
                       </div>
                     ))}
                   </div>
                 )}
 
                 {/* Footer IMO & Type */}
-                <div className="flex items-center justify-between text-[9px] font-mono text-zinc-400 mt-2 pt-1 border-t border-zinc-800/60">
+                <div className="flex items-center justify-between text-[11px] font-mono text-zinc-400 mt-2.5 pt-1.5 border-t border-zinc-800/60">
                   <span>{vessel.vessel_type}</span>
                   <span>
                     IMO: {vessel.imo} | MMSI: {vessel.mmsi}

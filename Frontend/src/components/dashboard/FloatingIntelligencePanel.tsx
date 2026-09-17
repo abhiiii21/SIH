@@ -46,7 +46,7 @@ export const FloatingIntelligencePanel: React.FC<FloatingIntelligencePanelProps>
       >
         <div className="flex items-center gap-2">
           <Shield className="w-4 h-4 text-[#185ADB]" />
-          <span className="text-xs font-bold text-[#0B2545]">Incident Intelligence</span>
+          <span className="text-xs font-display font-semibold text-[#0B2545]">Incident Intelligence</span>
         </div>
         <ChevronDown
           className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${

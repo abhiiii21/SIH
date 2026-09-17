@@ -62,9 +62,9 @@ export const StatusStepper: React.FC<StatusStepperProps> = ({ stages, onAdvanceS
                 </div>
 
                 {/* Labels */}
-                <div className="mt-1.5 text-center min-w-[72px] sm:min-w-[90px]">
+                <div className="mt-1.5 text-center min-w-[76px] sm:min-w-[96px] font-body">
                   <div
-                    className={`text-[11px] font-bold leading-tight ${
+                    className={`text-xs font-bold leading-tight ${
                       isCurrent
                         ? "text-[#1E5FBF]"
                         : isCompleted
@@ -75,11 +75,11 @@ export const StatusStepper: React.FC<StatusStepperProps> = ({ stages, onAdvanceS
                     {stage.title}
                   </div>
                   <div
-                    className={`text-[9px] font-medium leading-tight mt-0.5 ${
+                    className={`text-[11px] font-medium leading-tight mt-0.5 ${
                       isCurrent
-                        ? "text-amber-600 font-bold"
+                        ? "text-amber-600 font-semibold"
                         : isCompleted
-                        ? "text-emerald-700"
+                        ? "text-emerald-700 font-medium"
                         : "text-slate-400"
                     }`}
                   >
@@ -109,8 +109,8 @@ export const StatusStepper: React.FC<StatusStepperProps> = ({ stages, onAdvanceS
 
       {/* Stage Detail Popover */}
       {activePopoverStage && (
-        <div className="absolute top-full left-4 right-4 sm:left-auto sm:right-4 mt-2 sm:w-96 bg-white border border-[#E1EEF9] rounded-2xl shadow-[0_12px_36px_rgba(30,95,191,0.18)] p-3.5 z-40 animate-fadeIn text-xs text-slate-800">
-          <div className="flex items-center justify-between pb-2 border-b border-[#E1EEF9] mb-2.5">
+        <div className="absolute top-full left-4 right-4 sm:left-auto sm:right-4 mt-2 sm:w-[420px] bg-white border border-[#E1EEF9] rounded-2xl shadow-[0_16px_40px_rgba(30,95,191,0.18)] p-4 sm:p-5 z-40 animate-fadeIn text-slate-800 font-body">
+          <div className="flex items-center justify-between pb-2.5 border-b border-[#E1EEF9] mb-3">
             <div className="flex items-center gap-2">
               <span
                 className={`w-2.5 h-2.5 rounded-full ${
@@ -121,35 +121,35 @@ export const StatusStepper: React.FC<StatusStepperProps> = ({ stages, onAdvanceS
                     : "bg-slate-300"
                 }`}
               />
-              <span className="font-bold text-[#0B2545] text-xs">
+              <span className="font-display font-bold text-[#0B2545] text-sm sm:text-base">
                 Stage {stages.findIndex((s) => s.id === activePopoverStage.id) + 1}:{" "}
                 {activePopoverStage.title}
               </span>
             </div>
             <button
               onClick={() => setActivePopoverStage(null)}
-              className="p-1 rounded-md hover:bg-slate-100 text-slate-400 hover:text-slate-700 cursor-pointer"
+              className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-700 cursor-pointer transition-colors"
             >
-              <X className="w-3.5 h-3.5" />
+              <X className="w-4 h-4" />
             </button>
           </div>
 
-          <div className="space-y-1.5 text-[11px] leading-relaxed text-slate-600">
-            <div className="flex items-center justify-between text-[10px] text-slate-500">
+          <div className="space-y-2.5 font-body">
+            <div className="flex items-center justify-between text-xs text-slate-500">
               <span className="font-medium">Timestamp:</span>
-              <span className="font-mono text-[#0B2545] font-semibold">
+              <span className="font-mono text-[#0B2545] font-semibold text-xs">
                 {activePopoverStage.timestamp}
               </span>
             </div>
             {activePopoverStage.agency && (
-              <div className="flex items-center justify-between text-[10px] text-slate-500">
+              <div className="flex items-center justify-between text-xs text-slate-500">
                 <span className="font-medium">Authority:</span>
-                <span className="text-slate-700 font-medium">
+                <span className="text-slate-700 font-semibold text-xs">
                   {activePopoverStage.agency}
                 </span>
               </div>
             )}
-            <p className="mt-1.5 p-2 rounded-xl bg-[#F8FBFE] border border-[#E1EEF9] text-slate-700">
+            <p className="body-description mt-2.5 p-3.5 rounded-xl bg-[#F8FBFE] border border-[#E1EEF9] text-slate-700 text-sm sm:text-[14.5px] leading-relaxed font-body">
               {activePopoverStage.details}
             </p>
             {onAdvanceStage && activePopoverStage.status === "current" && (
@@ -159,9 +159,9 @@ export const StatusStepper: React.FC<StatusStepperProps> = ({ stages, onAdvanceS
                   onAdvanceStage(activePopoverStage.id);
                   setActivePopoverStage(null);
                 }}
-                className="w-full mt-2 py-1.5 px-3 bg-[#1E5FBF] hover:bg-[#184E9F] text-white text-[11px] font-bold rounded-xl shadow-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                className="w-full mt-3 py-2 px-3.5 bg-[#1E5FBF] hover:bg-[#184E9F] text-white text-xs sm:text-sm font-semibold font-body rounded-xl shadow-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
               >
-                <CheckCircle2 className="w-3.5 h-3.5" />
+                <CheckCircle2 className="w-4 h-4" />
                 <span>Mark Stage Verified &amp; Advance</span>
               </button>
             )}

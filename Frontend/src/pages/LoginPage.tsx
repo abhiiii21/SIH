@@ -116,7 +116,7 @@ export const LoginPage: React.FC = () => {
       </div>
 
       {/* 3. HEADER & TOP NAV */}
-      <header className="relative z-20 w-full px-6 sm:px-10 lg:px-14 pt-6 pb-2 flex items-center justify-between">
+      <header className="relative z-20 w-full px-6 sm:px-10 lg:px-14 pt-6 pb-2 flex items-center justify-between antialiased">
         {/* Top-Left Logo & Wordmark */}
         <div className="flex items-center gap-3.5">
           <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-white to-sky-100 flex items-center justify-center shadow-[0_4px_12px_rgba(24,90,219,0.2)] border border-white/80 shrink-0">
@@ -142,17 +142,17 @@ export const LoginPage: React.FC = () => {
           </div>
 
           <div>
-            <h1 className="text-xl sm:text-2xl font-black tracking-[0.22em] text-[#0B2545] leading-none">
+            <h1 className="text-xl sm:text-2xl font-display font-bold tracking-[0.22em] text-[#0B2545] leading-none">
               SAHAYYA
             </h1>
-            <p className="text-[11px] sm:text-xs font-semibold text-slate-500 tracking-tight mt-1">
+            <p className="text-[11px] sm:text-xs font-semibold text-slate-500 tracking-tight mt-1 font-body">
               AI-Powered Marine Incident Command Center
             </p>
           </div>
         </div>
 
         {/* Top-Right Nav */}
-        <div className="flex items-center gap-3 sm:gap-4 text-white/90 text-xs sm:text-sm font-semibold tracking-wide drop-shadow-md">
+        <div className="flex items-center gap-3 sm:gap-4 text-white/90 text-xs sm:text-sm font-semibold tracking-wide drop-shadow-md font-body">
           <span>Detect</span>
           <span className="text-white/60 text-xs">•</span>
           <span>Analyze</span>
@@ -177,10 +177,10 @@ export const LoginPage: React.FC = () => {
       </header>
 
       {/* 4. MAIN SPLIT CONTENT */}
-      <main className="relative z-10 w-full min-h-[calc(100vh-8.5rem)] px-6 sm:px-10 lg:px-14 flex flex-col lg:flex-row items-center justify-between py-6 lg:py-0">
+      <main className="relative z-10 w-full min-h-[calc(100vh-8.5rem)] px-6 sm:px-10 lg:px-14 flex flex-col lg:flex-row items-center justify-between py-6 lg:py-0 antialiased">
         {/* Left Hero Section */}
         <div className="w-full lg:w-[54%] max-w-[660px] flex flex-col justify-center py-4 lg:py-8">
-          <div className="font-sans font-black text-[#0B2545] tracking-tight text-4xl sm:text-5xl md:text-6xl lg:text-[4.25rem] leading-[1.06]">
+          <div className="font-display font-bold text-[#0B2545] tracking-tight text-4xl sm:text-5xl md:text-6xl lg:text-[4.25rem] leading-[1.06]">
             <div>&ldquo;Cleaner Oceans</div>
             <div>for a Safer</div>
             <div>
@@ -188,18 +188,18 @@ export const LoginPage: React.FC = () => {
             </div>
           </div>
 
-          <div className="mt-4 text-base sm:text-lg font-medium text-[#0F2A4A] leading-relaxed">
+          <div className="mt-4 text-base sm:text-lg font-medium text-[#0F2A4A] leading-relaxed font-body">
             <div>From Satellite to Solution &mdash;</div>
             <div>Turning Ocean Data into Action.</div>
           </div>
 
           {/* 5 Feature Icons */}
-          <div className="mt-8 sm:mt-10 grid grid-cols-5 gap-2 sm:gap-4 max-w-[540px]">
+          <div className="mt-8 sm:mt-10 grid grid-cols-5 gap-2 sm:gap-4 max-w-[540px] font-body">
             <div className="flex flex-col items-center text-center group cursor-default">
               <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-[#EAF3FC] border border-[#D0E4FA] flex items-center justify-center text-[#1E5FBF] shadow-sm transition-transform duration-200 group-hover:scale-105 group-hover:bg-[#DEEEFC]">
                 <Satellite className="w-5 h-5 sm:w-6 sm:h-6 stroke-[1.8]" />
               </div>
-              <span className="text-[11px] sm:text-xs font-bold text-[#0B2545] mt-2 leading-tight">
+              <span className="text-[11px] sm:text-xs font-semibold text-[#0B2545] mt-2 leading-tight">
                 Detect<br />Spills
               </span>
             </div>
@@ -208,7 +208,7 @@ export const LoginPage: React.FC = () => {
               <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-[#EAF3FC] border border-[#D0E4FA] flex items-center justify-center text-[#1E5FBF] shadow-sm transition-transform duration-200 group-hover:scale-105 group-hover:bg-[#DEEEFC]">
                 <Brain className="w-5 h-5 sm:w-6 sm:h-6 stroke-[1.8]" />
               </div>
-              <span className="text-[11px] sm:text-xs font-bold text-[#0B2545] mt-2 leading-tight">
+              <span className="text-[11px] sm:text-xs font-semibold text-[#0B2545] mt-2 leading-tight">
                 Find<br />Origins
               </span>
             </div>
@@ -217,7 +217,7 @@ export const LoginPage: React.FC = () => {
               <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-[#EAF3FC] border border-[#D0E4FA] flex items-center justify-center text-[#1E5FBF] shadow-sm transition-transform duration-200 group-hover:scale-105 group-hover:bg-[#DEEEFC]">
                 <Anchor className="w-5 h-5 sm:w-6 sm:h-6 stroke-[1.8]" />
               </div>
-              <span className="text-[11px] sm:text-xs font-bold text-[#0B2545] mt-2 leading-tight">
+              <span className="text-[11px] sm:text-xs font-semibold text-[#0B2545] mt-2 leading-tight">
                 Identify<br />Vessels
               </span>
             </div>
@@ -226,7 +226,7 @@ export const LoginPage: React.FC = () => {
               <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-[#EAF3FC] border border-[#D0E4FA] flex items-center justify-center text-[#1E5FBF] shadow-sm transition-transform duration-200 group-hover:scale-105 group-hover:bg-[#DEEEFC]">
                 <Waves className="w-5 h-5 sm:w-6 sm:h-6 stroke-[1.8]" />
               </div>
-              <span className="text-[11px] sm:text-xs font-bold text-[#0B2545] mt-2 leading-tight">
+              <span className="text-[11px] sm:text-xs font-semibold text-[#0B2545] mt-2 leading-tight">
                 Predict<br />Impact
               </span>
             </div>
@@ -235,7 +235,7 @@ export const LoginPage: React.FC = () => {
               <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-[#EAF3FC] border border-[#D0E4FA] flex items-center justify-center text-[#1E5FBF] shadow-sm transition-transform duration-200 group-hover:scale-105 group-hover:bg-[#DEEEFC]">
                 <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6 stroke-[1.8]" />
               </div>
-              <span className="text-[11px] sm:text-xs font-bold text-[#0B2545] mt-2 leading-tight">
+              <span className="text-[11px] sm:text-xs font-semibold text-[#0B2545] mt-2 leading-tight">
                 Enable<br />Response
               </span>
             </div>
@@ -243,26 +243,26 @@ export const LoginPage: React.FC = () => {
         </div>
 
         {/* Right Floating Login Card */}
-        <div className="w-full lg:w-auto flex justify-center lg:justify-end py-6 lg:py-0">
+        <div className="w-full lg:w-auto flex justify-center lg:justify-end py-6 lg:py-0 font-body">
           <div className="w-full max-w-[430px] bg-white/90 backdrop-blur-xl rounded-[24px] shadow-[0_20px_60px_rgba(8,37,68,0.22)] border border-white/90 p-7 sm:p-10 transition-all duration-300 hover:shadow-[0_25px_70px_rgba(8,37,68,0.28)]">
             <div className="mb-6">
-              <h2 className="text-2xl sm:text-[28px] font-bold text-[#0B2545] tracking-tight">
+              <h2 className="heading-secondary text-2xl sm:text-[28px] text-[#0B2545]">
                 Welcome Back
               </h2>
-              <p className="text-sm text-slate-500 font-normal mt-1.5">
+              <p className="body-text text-sm text-slate-500 font-body mt-1.5">
                 Sign in to continue to Sahayya
               </p>
             </div>
 
             {/* Error Message Box */}
             {errorMessage && (
-              <div className="mb-4 p-3 rounded-xl bg-rose-50 border border-rose-200 flex items-start gap-2.5 text-xs text-rose-700 animate-fadeIn">
+              <div className="mb-4 p-3 rounded-xl bg-rose-50 border border-rose-200 flex items-start gap-2.5 text-xs text-rose-700 animate-fadeIn font-body">
                 <AlertCircle className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
                 <span>{errorMessage}</span>
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4 font-body">
               {/* Email Input */}
               <div>
                 <div className="relative flex items-center">
@@ -277,7 +277,7 @@ export const LoginPage: React.FC = () => {
                       if (errorMessage) setErrorMessage(null);
                     }}
                     placeholder="Enter your email address"
-                    className="w-full pl-11 pr-4 py-3 rounded-2xl bg-[#F0F4F9]/90 border border-slate-200/90 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#1E5FBF] focus:bg-white focus:ring-2 focus:ring-[#1E5FBF]/15 transition-all"
+                    className="w-full pl-11 pr-4 py-3 rounded-2xl bg-[#F0F4F9]/90 border border-slate-200/90 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#1E5FBF] focus:bg-white focus:ring-2 focus:ring-[#1E5FBF]/15 transition-all input-text font-body"
                   />
                 </div>
               </div>
@@ -296,7 +296,7 @@ export const LoginPage: React.FC = () => {
                       if (errorMessage) setErrorMessage(null);
                     }}
                     placeholder="Enter your password"
-                    className="w-full pl-11 pr-11 py-3 rounded-2xl bg-[#F0F4F9]/90 border border-slate-200/90 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#1E5FBF] focus:bg-white focus:ring-2 focus:ring-[#1E5FBF]/15 transition-all"
+                    className="w-full pl-11 pr-11 py-3 rounded-2xl bg-[#F0F4F9]/90 border border-slate-200/90 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#1E5FBF] focus:bg-white focus:ring-2 focus:ring-[#1E5FBF]/15 transition-all input-text font-body"
                   />
                   <button
                     type="button"
@@ -309,7 +309,7 @@ export const LoginPage: React.FC = () => {
               </div>
 
               {/* Remember Me & Forgot Password */}
-              <div className="flex items-center justify-between pt-1 text-xs">
+              <div className="flex items-center justify-between pt-1 text-xs font-body">
                 <label className="flex items-center gap-2 cursor-pointer select-none">
                   <input
                     type="checkbox"
@@ -317,7 +317,7 @@ export const LoginPage: React.FC = () => {
                     onChange={(e) => setRememberMe(e.target.checked)}
                     className="w-4 h-4 rounded border-slate-300 text-[#1E5FBF] focus:ring-[#1E5FBF] focus:ring-offset-0 cursor-pointer accent-[#1E5FBF]"
                   />
-                  <span className="text-[#0B2545]/80 font-medium">Remember me</span>
+                  <span className="text-[#0B2545]/80 font-medium font-body">Remember me</span>
                 </label>
 
                 <a
@@ -326,7 +326,7 @@ export const LoginPage: React.FC = () => {
                     e.preventDefault();
                     alert("A password reset link has been dispatched to your email address.");
                   }}
-                  className="font-semibold text-[#1E5FBF] hover:text-[#185ADB] hover:underline transition-colors"
+                  className="font-semibold text-[#1E5FBF] hover:text-[#185ADB] hover:underline transition-colors font-body"
                 >
                   Forgot password?
                 </a>
@@ -337,7 +337,7 @@ export const LoginPage: React.FC = () => {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full py-3.5 px-6 rounded-full bg-gradient-to-r from-[#185ADB] via-[#1E6FFB] to-[#38BDF8] text-white font-semibold text-sm shadow-[0_8px_20px_rgba(24,90,219,0.32)] hover:shadow-[0_10px_25px_rgba(24,90,219,0.42)] hover:from-[#1448B0] hover:to-[#2563EB] active:scale-[0.99] transition-all duration-200 flex items-center justify-center gap-2 group cursor-pointer"
+                  className="w-full py-3.5 px-6 rounded-full bg-gradient-to-r from-[#185ADB] via-[#1E6FFB] to-[#38BDF8] text-white btn-text shadow-[0_8px_20px_rgba(24,90,219,0.32)] hover:shadow-[0_10px_25px_rgba(24,90,219,0.42)] hover:from-[#1448B0] hover:to-[#2563EB] active:scale-[0.99] transition-all duration-200 flex items-center justify-center gap-2 group cursor-pointer font-body"
                 >
                   {isLoading ? (
                     <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -351,22 +351,22 @@ export const LoginPage: React.FC = () => {
               </div>
 
               {/* Divider */}
-              <div className="relative flex items-center justify-center py-2">
+              <div className="relative flex items-center justify-center py-2 font-body">
                 <div className="absolute inset-0 flex items-center">
                   <div className="w-full border-t border-slate-200" />
                 </div>
-                <span className="relative px-3 bg-white/90 text-[11px] font-medium text-slate-400 uppercase tracking-wider">
+                <span className="relative px-3 bg-white/90 micro-text font-medium text-slate-400 uppercase tracking-wider font-body">
                   Or continue with
                 </span>
               </div>
 
               {/* Social Buttons: Google & Facebook */}
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-3 font-body">
                 {/* Google */}
                 <button
                   type="button"
                   onClick={() => handleSocial("google")}
-                  className="flex items-center justify-center gap-2 py-2.5 px-4 rounded-full bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 text-xs font-semibold text-slate-700 shadow-sm transition-all cursor-pointer"
+                  className="flex items-center justify-center gap-2 py-2.5 px-4 rounded-full bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 text-xs font-semibold text-slate-700 shadow-sm transition-all cursor-pointer font-body btn-text"
                 >
                   <svg className="w-4 h-4" viewBox="0 0 24 24">
                     <path
@@ -393,7 +393,7 @@ export const LoginPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => handleSocial("facebook")}
-                  className="flex items-center justify-center gap-2 py-2.5 px-4 rounded-full bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 text-xs font-semibold text-slate-700 shadow-sm transition-all cursor-pointer"
+                  className="flex items-center justify-center gap-2 py-2.5 px-4 rounded-full bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 text-xs font-semibold text-slate-700 shadow-sm transition-all cursor-pointer font-body btn-text"
                 >
                   <svg className="w-4 h-4 fill-[#1877F2]" viewBox="0 0 24 24">
                     <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
@@ -403,8 +403,8 @@ export const LoginPage: React.FC = () => {
               </div>
 
               {/* Footer line linking to Register */}
-              <div className="text-center pt-2">
-                <p className="text-xs text-slate-500 font-normal">
+              <div className="text-center pt-2 font-body">
+                <p className="body-text text-xs text-slate-500 font-normal font-body">
                   Don&apos;t have an account?{" "}
                   <Link
                     to="/register"
@@ -420,8 +420,8 @@ export const LoginPage: React.FC = () => {
       </main>
 
       {/* 5. FOOTER */}
-      <footer className="relative z-20 w-full px-6 sm:px-10 lg:px-14 pb-5 pt-2">
-        <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-3 text-white/80 text-[11px] sm:text-xs font-medium">
+      <footer className="relative z-20 w-full px-6 sm:px-10 lg:px-14 pb-5 pt-2 antialiased">
+        <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-3 text-white/80 micro-text font-body">
           <div className="flex items-center gap-2 drop-shadow-md">
             <Shield className="w-4 h-4 text-sky-300 shrink-0" />
             <span>Healthy Oceans &nbsp;|&nbsp; Safe Communities &nbsp;|&nbsp; Sustainable Future</span>

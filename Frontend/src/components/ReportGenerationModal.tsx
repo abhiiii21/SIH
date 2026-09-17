@@ -180,28 +180,28 @@ export const ReportGenerationModal: React.FC<ReportGenerationModalProps> = ({
         aria-modal="true"
       >
         {/* Modal Header */}
-        <div className="bg-gradient-to-r from-[#0B2545] via-[#133A6B] to-[#1E5FBF] px-6 py-5 text-white flex items-center justify-between">
+        <div className="bg-gradient-to-r from-[#0B2545] via-[#133A6B] to-[#1E5FBF] px-6 py-5 text-white flex items-center justify-between antialiased">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center border border-white/20">
               <FileText className="w-5 h-5 text-blue-300" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="font-bold text-lg tracking-tight">
+                <h3 className="font-display font-bold text-lg tracking-tight">
                   {isFleetReport ? 'Fleet Surveillance Dossier' : 'Official Marine Incident Report'}
                 </h3>
-                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-blue-400/20 text-blue-200 border border-blue-300/30">
+                <span className="text-[10px] uppercase font-bold font-body tracking-wider px-2 py-0.5 rounded-full bg-blue-400/20 text-blue-200 border border-blue-300/30">
                   ICG Defense Spec
                 </span>
               </div>
-              <p className="text-xs text-blue-200/80 mt-0.5">
+              <p className="text-xs text-blue-200/80 mt-0.5 font-body">
                 {isFleetReport ? 'All-India Maritime EEZ Domain' : `${incidentIdOrCode} · ${incidentTitle}`}
               </p>
             </div>
           </div>
           <button 
             onClick={onClose}
-            className="p-1.5 rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition-colors"
+            className="p-1.5 rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
             title="Close"
           >
             <X className="w-5 h-5" />
@@ -209,23 +209,23 @@ export const ReportGenerationModal: React.FC<ReportGenerationModalProps> = ({
         </div>
 
         {/* Modal Body */}
-        <div className="p-6">
+        <div className="p-6 font-body">
           {(phase === 'starting' || phase === 'polling') && (
             <div className="space-y-6">
               <div className="text-center py-2">
                 <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-blue-50 border border-blue-200 text-blue-600 mb-3 animate-pulse">
                   <Loader2 className="w-7 h-7 animate-spin" />
                 </div>
-                <h4 className="text-base font-semibold text-slate-800">
+                <h4 className="heading-section text-base font-semibold text-slate-800">
                   Synthesizing High-Fidelity Intelligence Report
                 </h4>
-                <p className="text-xs text-slate-500 max-w-sm mx-auto mt-1">
+                <p className="text-xs text-slate-500 max-w-sm mx-auto mt-1 font-body">
                   Sahayya defense engine is correlating satellite SAR raster data, vessel trajectories, and hydrodynamic particle drift models...
                 </p>
               </div>
 
               {/* Progress Steps */}
-              <div className="bg-slate-50 border border-slate-100 rounded-xl p-4 space-y-3">
+              <div className="bg-slate-50 border border-slate-100 rounded-xl p-4 space-y-3 font-body">
                 {steps.map((s) => (
                   <div key={s.id} className="flex items-center gap-3">
                     {s.status === 'completed' ? (
@@ -248,7 +248,7 @@ export const ReportGenerationModal: React.FC<ReportGenerationModalProps> = ({
                 ))}
               </div>
 
-              <div className="flex items-center justify-center gap-2 text-[11px] text-slate-400">
+              <div className="flex items-center justify-center gap-2 text-[11px] text-slate-400 font-body">
                 <Clock className="w-3.5 h-3.5" />
                 <span>Estimated compilation time: ~4–8 seconds</span>
               </div>
@@ -262,17 +262,17 @@ export const ReportGenerationModal: React.FC<ReportGenerationModalProps> = ({
                   <CheckCircle2 className="w-6 h-6" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h4 className="text-sm font-bold text-emerald-950">
+                  <h4 className="heading-section text-sm font-bold text-emerald-950">
                     Document Compiled &amp; Cryptographically Certified
                   </h4>
-                  <p className="text-xs text-emerald-700 mt-0.5">
+                  <p className="text-xs text-emerald-700 mt-0.5 font-body">
                     Full 9-page forensic report ready for operational deployment and evidentiary chain-of-custody.
                   </p>
                 </div>
               </div>
 
               {/* Document Metadata Card */}
-              <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 text-xs space-y-2.5">
+              <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 text-xs space-y-2.5 font-body">
                 <div className="flex items-center justify-between pb-2 border-b border-slate-200">
                   <span className="text-slate-500 font-medium">Document Title</span>
                   <span className="font-semibold text-slate-800 text-right truncate max-w-[280px]">
@@ -312,14 +312,14 @@ export const ReportGenerationModal: React.FC<ReportGenerationModalProps> = ({
               <div className="flex items-center gap-3 pt-2">
                 <button
                   onClick={handleDownload}
-                  className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-[#1E5FBF] hover:bg-[#184E9F] text-white rounded-xl font-semibold text-sm shadow-md shadow-blue-500/20 hover:shadow-lg transition-all"
+                  className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-[#1E5FBF] hover:bg-[#184E9F] text-white rounded-xl font-semibold font-body text-sm shadow-md shadow-blue-500/20 hover:shadow-lg transition-all cursor-pointer"
                 >
                   <Download className="w-4 h-4" />
                   <span>Download PDF</span>
                 </button>
                 <button
                   onClick={handleViewInBrowser}
-                  className="flex items-center justify-center gap-2 px-4 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-semibold text-sm transition-colors border border-slate-200"
+                  className="flex items-center justify-center gap-2 px-4 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-semibold font-body text-sm transition-colors border border-slate-200 cursor-pointer"
                 >
                   <ExternalLink className="w-4 h-4" />
                   <span>View in Browser</span>
@@ -329,15 +329,15 @@ export const ReportGenerationModal: React.FC<ReportGenerationModalProps> = ({
           )}
 
           {phase === 'failed' && (
-            <div className="space-y-5 text-center py-4">
+            <div className="space-y-5 text-center py-4 font-body">
               <div className="w-12 h-12 rounded-full bg-red-50 border border-red-200 text-red-600 flex items-center justify-center mx-auto">
                 <AlertTriangle className="w-6 h-6" />
               </div>
               <div>
-                <h4 className="text-base font-bold text-slate-800">
+                <h4 className="heading-section text-base font-bold text-slate-800">
                   Report Generation Encountered an Issue
                 </h4>
-                <p className="text-xs text-red-600 mt-1 max-w-sm mx-auto">
+                <p className="text-xs text-red-600 mt-1 max-w-sm mx-auto font-body">
                   {errorMessage || 'An error occurred while compiling the simulation assets and PDF.'}
                 </p>
               </div>
@@ -345,14 +345,14 @@ export const ReportGenerationModal: React.FC<ReportGenerationModalProps> = ({
               <div className="flex items-center justify-center gap-3 pt-2">
                 <button
                   onClick={startGeneration}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold shadow-sm transition-colors"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold font-body shadow-sm transition-colors cursor-pointer"
                 >
                   <RefreshCw className="w-3.5 h-3.5" />
                   <span>Retry Compilation</span>
                 </button>
                 <button
                   onClick={onClose}
-                  className="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-medium transition-colors"
+                  className="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-medium font-body transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
@@ -362,11 +362,11 @@ export const ReportGenerationModal: React.FC<ReportGenerationModalProps> = ({
         </div>
 
         {/* Modal Footer */}
-        <div className="px-6 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
+        <div className="px-6 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400 font-body">
           <span>Security Classification: Restricted — Official Coast Guard Use</span>
           <button 
             onClick={onClose}
-            className="hover:text-slate-600 font-medium"
+            className="hover:text-slate-600 font-medium cursor-pointer"
           >
             Dismiss
           </button>

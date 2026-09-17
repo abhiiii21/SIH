@@ -223,6 +223,9 @@ export const sahayyaApi = {
       vessel_type?: string;
       flag?: string;
       name?: string;
+      imo?: string;
+      mmsi?: string;
+      built_year?: string | number;
       score?: number;
       cpa_km?: number;
       dark_duration?: string;
@@ -240,6 +243,9 @@ export const sahayyaApi = {
         vessel_type: params.vessel_type,
         flag: params.flag,
         name: params.name,
+        imo: params.imo,
+        mmsi: params.mmsi,
+        built_year: params.built_year,
         score: params.score,
         cpa_km: params.cpa_km,
         dark_duration: params.dark_duration,
@@ -306,6 +312,55 @@ export const sahayyaApi = {
       return response.data;
     },
   },
+
+  // Settings & Profile Management
+  settings: {
+    getProfile: async () => {
+      const response = await apiClient.get("/settings/profile");
+      return response.data;
+    },
+    updateProfile: async (profileData: Record<string, any>) => {
+      const response = await apiClient.put("/settings/profile", profileData);
+      return response.data;
+    },
+    uploadAvatar: async (file: File) => {
+      const formData = new FormData();
+      formData.append("file", file);
+      const response = await apiClient.post("/settings/profile/avatar", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      return response.data;
+    },
+    deleteAvatar: async () => {
+      const response = await apiClient.delete("/settings/profile/avatar");
+      return response.data;
+    },
+    testAlertBroadcast: async (payload: { channels: string[]; severity?: string; incident_code?: string; test_message?: string }) => {
+      const response = await apiClient.post("/settings/notifications/test-dispatch", payload);
+      return response.data;
+    },
+    getDataSourcesHealth: async () => {
+      const response = await apiClient.get("/settings/data-sources/health");
+      return response.data;
+    },
+    getTeam: async () => {
+      const response = await apiClient.get("/settings/team");
+      return response.data;
+    },
+    addTeamMember: async (member: { name: string; email: string; role?: string; agency?: string; clearance?: string }) => {
+      const response = await apiClient.post("/settings/team", member);
+      return response.data;
+    },
+  },
+};
+
+export const getAvatarUrl = (url?: string | null): string | undefined => {
+  if (!url) return undefined;
+  if (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("blob:") || url.startsWith("data:")) {
+    return url;
+  }
+  const apiBase = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+  return `${apiBase.replace(/\/$/, "")}${url.startsWith("/") ? "" : "/"}${url}`;
 };
 
 export default sahayyaApi;

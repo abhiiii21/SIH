@@ -45,14 +45,14 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
         <div>
           <div className="flex items-center space-x-2">
-            <span className="font-mono text-sm font-bold tracking-wider text-zinc-100">
+            <span className="font-display text-base font-bold tracking-wider text-zinc-100">
               SAHAYYA
             </span>
-            <span className="text-[10px] font-mono tracking-wider text-zinc-300 bg-zinc-800 border border-zinc-700 px-1.5 py-0.5 rounded">
+            <span className="text-[10px] font-body font-semibold tracking-wider text-zinc-300 bg-zinc-800 border border-zinc-700 px-1.5 py-0.5 rounded">
               MDA OPS
             </span>
           </div>
-          <p className="text-[10px] font-mono text-zinc-400">
+          <p className="text-[10px] font-body text-zinc-400 tracking-wide font-medium">
             SAR OIL SPILL INTELLIGENCE &amp; AIS ATTRIBUTION
           </p>
         </div>
@@ -66,7 +66,7 @@ export const Header: React.FC<HeaderProps> = ({
             value={activeIncident}
             onChange={(e) => onSelectIncident(e.target.value)}
             disabled={isLoading}
-            className="h-8 bg-zinc-900 border border-zinc-700 rounded text-xs font-mono text-zinc-200 pl-8 pr-7 py-1 appearance-none focus:outline-none focus:border-zinc-500 cursor-pointer hover:bg-zinc-850 transition-colors"
+            className="h-8 bg-zinc-900 border border-zinc-700 rounded text-xs font-body font-medium text-zinc-200 pl-8 pr-7 py-1 appearance-none focus:outline-none focus:border-zinc-500 cursor-pointer hover:bg-zinc-850 transition-colors"
           >
             <option value="IN-MH-2026">SECTOR: MUMBAI OFFSHORE (IN-MH-2026)</option>
             <option value="IN-GJ-2026">SECTOR: GULF OF KUTCH (IN-GJ-2026)</option>
@@ -87,9 +87,9 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
 
         {/* Engine Mode Badge */}
-        <div className="hidden sm:flex items-center space-x-1.5 rounded border border-zinc-800 bg-zinc-900/90 px-2.5 py-1 font-mono text-xs">
-          <span className="text-[10px] text-zinc-400">ENGINE:</span>
-          <span className="font-semibold text-zinc-200">
+        <div className="hidden sm:flex items-center space-x-1.5 rounded border border-zinc-800 bg-zinc-900/90 px-2.5 py-1 text-xs">
+          <span className="text-[10px] font-body text-zinc-400">ENGINE:</span>
+          <span className="font-mono text-xs font-semibold text-zinc-200">
             {systemHealth?.sar_inference_mode === "NEURAL_UNET"
               ? "U-NET SAR"
               : "ADAPTIVE SIGMA0"}
@@ -97,16 +97,16 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
 
         {/* Alert / Health Status */}
-        <div className="flex items-center space-x-1.5 rounded border border-zinc-800 bg-zinc-900/90 px-2.5 py-1 text-xs font-mono">
+        <div className="flex items-center space-x-1.5 rounded border border-zinc-800 bg-zinc-900/90 px-2.5 py-1 text-xs font-body">
           {systemHealth?.status === "OPERATIONAL" ? (
             <>
               <div className="h-2 w-2 rounded-full bg-emerald-500" />
-              <span className="font-medium text-zinc-200">OPERATIONAL</span>
+              <span className="font-semibold text-zinc-200 tracking-wide">OPERATIONAL</span>
             </>
           ) : (
             <>
               <div className="h-2 w-2 rounded-full bg-amber-500" />
-              <span className="font-medium text-amber-400">CONNECTING</span>
+              <span className="font-semibold text-amber-400 tracking-wide">CONNECTING</span>
             </>
           )}
         </div>
@@ -115,7 +115,7 @@ export const Header: React.FC<HeaderProps> = ({
         {onLogout && (
           <button
             onClick={onLogout}
-            className="flex items-center space-x-1.5 rounded border border-zinc-700 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-white px-2.5 py-1 text-xs font-mono transition-colors cursor-pointer"
+            className="flex items-center space-x-1.5 rounded border border-zinc-700 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-white px-2.5 py-1 text-xs font-body font-semibold tracking-wider transition-colors cursor-pointer"
             title="Sign Out to Login Page"
           >
             <span>SIGN OUT</span>

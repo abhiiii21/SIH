@@ -242,7 +242,7 @@ export const MapPage: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen w-screen overflow-hidden bg-slate-900 font-sans select-none">
+    <div className="flex flex-col h-screen w-screen overflow-hidden bg-slate-900 font-sans select-none antialiased">
       {/* ===================================================================== */}
       {/* FIXED TOP BAR                                                         */}
       {/* ===================================================================== */}
@@ -262,14 +262,14 @@ export const MapPage: React.FC = () => {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-black text-[#0B2545] text-base tracking-tight leading-none">
+                <span className="font-display font-bold text-[#0B2545] text-base tracking-[0.14em] leading-none">
                   SAHAYYA
                 </span>
-                <span className="text-[10px] font-bold px-1.5 py-0.2 bg-sky-100 text-[#1E5FBF] rounded-sm uppercase tracking-wider">
+                <span className="badge-text px-1.5 py-0.2 bg-sky-100 text-[#1E5FBF] rounded-sm uppercase tracking-wider font-body">
                   National MDA
                 </span>
               </div>
-              <div className="text-[10px] text-slate-500 font-medium leading-tight">
+              <div className="micro-text text-slate-500 font-body leading-tight">
                 National Maritime Domain Awareness & Situational Grid
               </div>
             </div>
@@ -284,7 +284,7 @@ export const MapPage: React.FC = () => {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search incident, vessel (IMO, name), port..."
-            className="w-full bg-[#F8FBFE] border border-[#E1EEF9] rounded-xl pl-9 pr-4 py-1.5 text-xs text-[#0B2545] placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#1E5FBF]/30 transition-all font-sans"
+            className="w-full bg-[#F8FBFE] border border-[#E1EEF9] rounded-xl pl-9 pr-4 py-1.5 text-xs text-[#0B2545] placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#1E5FBF]/30 transition-all font-body input-text"
           />
           {searchQuery && (
             <button
@@ -297,18 +297,18 @@ export const MapPage: React.FC = () => {
         </div>
 
         {/* Top Right System Status */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 font-body">
           <div className="hidden lg:flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span>AIS Live Feeds: Active (30 Vessels)</span>
+            <span>AIS Live Feeds: Active (<span className="data-mono font-mono">30</span> Vessels)</span>
           </div>
 
           <button
             onClick={() => navigate("/incidents/IN-MH-2026")}
-            className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-700 hover:to-rose-800 text-white text-xs font-bold shadow-xs flex items-center gap-1.5 cursor-pointer transition-all"
+            className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-700 hover:to-rose-800 text-white btn-text shadow-xs flex items-center gap-1.5 cursor-pointer transition-all"
           >
             <AlertTriangle className="w-3.5 h-3.5" />
-            <span>Active Incident: IN-MH-2026</span>
+            <span>Active Incident: <span className="font-mono">IN-MH-2026</span></span>
           </button>
         </div>
       </header>
@@ -325,13 +325,13 @@ export const MapPage: React.FC = () => {
         >
           <div className="flex flex-col items-center gap-2.5 w-full px-2">
             {[
-              { id: "Home", icon: Home, label: "Home", path: "/dashboard" },
+              { id: "Dashboard", icon: Home, label: "Home", path: "/dashboard" },
               { id: "Map", icon: MapIcon, label: "Map", path: "/map" },
               { id: "Incidents", icon: Activity, label: "Incidents", path: "/incidents/IN-MH-2026" },
               { id: "Vessels", icon: Ship, label: "Vessels", path: "/vessels" },
               { id: "Analysis", icon: BarChart3, label: "Analysis", path: "/analysis" },
               { id: "Settings", icon: Settings, label: "Settings", path: "/settings" },
-              { id: "Help", icon: HelpCircle, label: "Help" },
+              { id: "Help", icon: HelpCircle, label: "Help", path: "" },
             ].map((item) => {
               const Icon = item.icon;
               const isActive = activeNav === item.id;
@@ -355,13 +355,13 @@ export const MapPage: React.FC = () => {
                   title={item.label}
                 >
                   <Icon className="w-5 h-5 stroke-[1.8]" />
-                  <span className="text-[9px] font-semibold tracking-tight">{item.label}</span>
+                  <span className="text-[9px] font-medium tracking-tight font-body">{item.label}</span>
                 </button>
               );
             })}
           </div>
 
-          <div className="px-1 text-center">
+          <div className="px-1 text-center font-body">
             <div className="w-6 h-6 mx-auto mb-1 text-sky-400 opacity-60">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M2 12c2.5-3 5-3 7.5 0s5 3 7.5 0 5-3 7-0.5" />
@@ -389,16 +389,16 @@ export const MapPage: React.FC = () => {
           {/* FLOATING TOP STATS STRIP                                         */}
           {/* ================================================================= */}
           <div className="absolute top-4 left-4 sm:left-6 right-16 sm:right-20 z-20 pointer-events-none flex justify-center">
-            <div className="pointer-events-auto bg-white/90 backdrop-blur-md border border-[#E1EEF9] rounded-2xl shadow-xl px-4 py-2 flex items-center gap-4 sm:gap-8 max-w-2xl text-[#0B2545]">
+            <div className="pointer-events-auto bg-white/90 backdrop-blur-md border border-[#E1EEF9] rounded-2xl shadow-xl px-4 py-2 flex items-center gap-4 sm:gap-8 max-w-2xl text-[#0B2545] font-body">
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-lg bg-rose-50 border border-rose-200 flex items-center justify-center text-rose-600">
                   <AlertTriangle className="w-4 h-4" />
                 </div>
                 <div>
-                  <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+                  <div className="micro-text text-slate-400 font-semibold uppercase tracking-wider font-body">
                     Active Spills
                   </div>
-                  <div className="text-base font-black text-rose-600 leading-none">
+                  <div className="kpi-number text-base text-rose-600 leading-none">
                     {ACTIVE_INCIDENTS.length} Incidents
                   </div>
                 </div>
@@ -411,10 +411,10 @@ export const MapPage: React.FC = () => {
                   <Ship className="w-4 h-4" />
                 </div>
                 <div>
-                  <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+                  <div className="micro-text text-slate-400 font-semibold uppercase tracking-wider font-body">
                     Vessels Tracked
                   </div>
-                  <div className="text-base font-black text-[#0B2545] leading-none">
+                  <div className="kpi-number text-base text-[#0B2545] leading-none">
                     30 Vessels
                   </div>
                 </div>
@@ -427,10 +427,10 @@ export const MapPage: React.FC = () => {
                   <Radio className="w-4 h-4" />
                 </div>
                 <div>
-                  <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+                  <div className="micro-text text-slate-400 font-semibold uppercase tracking-wider font-body">
                     High ASI Risk
                   </div>
-                  <div className="text-base font-black text-amber-600 leading-none">
+                  <div className="kpi-number text-base text-amber-600 leading-none">
                     8 Flagged
                   </div>
                 </div>
@@ -445,7 +445,7 @@ export const MapPage: React.FC = () => {
             {showLeftFilters ? (
               <div className="bg-white/92 backdrop-blur-md border border-[#E1EEF9] rounded-2xl shadow-xl overflow-hidden text-slate-800 transition-all animate-fadeIn">
                 <div className="flex items-center justify-between px-4 py-3 border-b border-[#E1EEF9] bg-[#F8FBFE]">
-                  <div className="flex items-center gap-2 font-bold text-xs text-[#0B2545]">
+                  <div className="flex items-center gap-2 heading-section text-xs text-[#0B2545]">
                     <SlidersHorizontal className="w-4 h-4 text-[#1E5FBF]" />
                     <span>Situational Filters</span>
                   </div>
@@ -456,7 +456,7 @@ export const MapPage: React.FC = () => {
                         setVesselTypeFilter("All");
                         setSearchQuery("");
                       }}
-                      className="text-[10px] text-[#1E5FBF] font-semibold hover:underline cursor-pointer"
+                      className="micro-text text-[#1E5FBF] font-semibold hover:underline cursor-pointer font-body"
                     >
                       Reset
                     </button>
@@ -469,16 +469,16 @@ export const MapPage: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="p-4 space-y-3.5 text-xs">
+                <div className="p-4 space-y-3.5 text-xs font-body">
                   {/* Incident Status */}
                   <div>
-                    <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+                    <label className="input-label block text-slate-500 uppercase tracking-wider mb-1 font-body">
                       Incident Status
                     </label>
                     <select
                       value={incidentStatusFilter}
                       onChange={(e) => setIncidentStatusFilter(e.target.value)}
-                      className="w-full bg-[#F8FBFE] border border-[#E1EEF9] rounded-lg p-1.5 text-xs text-[#0B2545] font-semibold"
+                      className="w-full bg-[#F8FBFE] border border-[#E1EEF9] rounded-lg p-1.5 text-xs text-[#0B2545] font-semibold font-body input-text"
                     >
                       <option value="All">All Incident Statuses</option>
                       <option value="Live Incident">Live Incidents</option>
@@ -490,13 +490,13 @@ export const MapPage: React.FC = () => {
 
                   {/* Vessel Type */}
                   <div>
-                    <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+                    <label className="input-label block text-slate-500 uppercase tracking-wider mb-1 font-body">
                       Vessel Type (Fleet)
                     </label>
                     <select
                       value={vesselTypeFilter}
                       onChange={(e) => setVesselTypeFilter(e.target.value)}
-                      className="w-full bg-[#F8FBFE] border border-[#E1EEF9] rounded-lg p-1.5 text-xs text-[#0B2545] font-semibold"
+                      className="w-full bg-[#F8FBFE] border border-[#E1EEF9] rounded-lg p-1.5 text-xs text-[#0B2545] font-semibold font-body input-text"
                     >
                       <option value="All">All Ships ({filteredVessels.length})</option>
                       <option value="Tanker">Tankers (Crude / Chem)</option>
@@ -509,7 +509,7 @@ export const MapPage: React.FC = () => {
 
                   {/* Layer Checkboxes */}
                   <div className="pt-2 border-t border-[#E1EEF9] space-y-2">
-                    <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                    <label className="input-label block text-slate-500 uppercase tracking-wider font-body">
                       Maritime Vector Layers
                     </label>
 
@@ -521,7 +521,7 @@ export const MapPage: React.FC = () => {
                     ].map((lyr) => (
                       <label
                         key={lyr.key}
-                        className="flex items-center gap-2 cursor-pointer text-slate-700 text-xs"
+                        className="flex items-center gap-2 cursor-pointer text-slate-700 text-xs font-body"
                       >
                         <input
                           type="checkbox"
@@ -540,7 +540,7 @@ export const MapPage: React.FC = () => {
             ) : (
               <button
                 onClick={() => setShowLeftFilters(true)}
-                className="bg-white/90 backdrop-blur-md border border-[#E1EEF9] px-3 py-2 rounded-xl shadow-lg text-xs font-bold text-[#0B2545] flex items-center gap-1.5 hover:bg-white transition-all cursor-pointer"
+                className="bg-white/90 backdrop-blur-md border border-[#E1EEF9] px-3 py-2 rounded-xl shadow-lg btn-text text-[#0B2545] flex items-center gap-1.5 hover:bg-white transition-all cursor-pointer font-body"
               >
                 <Filter className="w-3.5 h-3.5 text-[#1E5FBF]" />
                 <span>Show Filters</span>
@@ -555,7 +555,7 @@ export const MapPage: React.FC = () => {
             {showRightIncidents ? (
               <div className="bg-white/92 backdrop-blur-md border border-[#E1EEF9] rounded-2xl shadow-xl overflow-hidden text-slate-800 transition-all animate-fadeIn flex flex-col max-h-[75vh]">
                 <div className="flex items-center justify-between px-4 py-3 border-b border-[#E1EEF9] bg-[#F8FBFE] shrink-0">
-                  <div className="flex items-center gap-2 font-bold text-xs text-[#0B2545]">
+                  <div className="flex items-center gap-2 heading-section text-xs text-[#0B2545]">
                     <AlertTriangle className="w-4 h-4 text-rose-600" />
                     <span>Active Incident Roster ({filteredIncidents.length})</span>
                   </div>
@@ -581,36 +581,36 @@ export const MapPage: React.FC = () => {
                         }`}
                       >
                         <div className="flex items-center justify-between">
-                          <span className="font-mono font-bold text-xs text-[#0B2545]">
+                          <span className="data-mono-sm font-bold text-[#0B2545] font-mono">
                             {inc.id}
                           </span>
                           <span
-                            className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${
+                            className={`badge-text px-2 py-0.5 rounded-full border ${
                               inc.severity === "Critical"
-                                ? "bg-rose-100 text-rose-700 border border-rose-200"
-                                : "bg-amber-100 text-amber-700 border border-amber-200"
+                                ? "bg-rose-100 text-rose-700 border-rose-200"
+                                : "bg-amber-100 text-amber-700 border-amber-200"
                             }`}
                           >
                             {inc.severity} ({inc.severityScore}%)
                           </span>
                         </div>
 
-                        <div className="font-bold text-xs text-[#0B2545] mt-1">{inc.name}</div>
-                        <div className="text-[10px] text-slate-500 font-mono">{inc.region}</div>
+                        <div className="font-semibold text-xs text-[#0B2545] mt-1 font-body">{inc.name}</div>
+                        <div className="micro-text text-slate-500 font-body">{inc.region}</div>
 
-                        <div className="grid grid-cols-2 gap-1 text-[10px] font-mono text-slate-600 mt-2 pt-2 border-t border-slate-100">
-                          <div>Slick Area: <span className="font-bold text-rose-600">{inc.areaKm2} km²</span></div>
-                          <div>Suspects: <span className="font-bold text-[#0B2545]">{inc.vesselsInAOI} in AOI</span></div>
+                        <div className="grid grid-cols-2 gap-1 text-[10px] text-slate-600 mt-2 pt-2 border-t border-slate-100 font-body">
+                          <div>Slick Area: <span className="data-mono-sm font-bold text-rose-600 font-mono">{inc.areaKm2} km²</span></div>
+                          <div>Suspects: <span className="data-mono-sm font-bold text-[#0B2545] font-mono">{inc.vesselsInAOI} in AOI</span></div>
                         </div>
 
                         <div className="mt-2.5 pt-1.5 flex items-center justify-between">
-                          <span className="text-[9px] text-slate-400">{inc.detectedTime}</span>
+                          <span className="data-mono-sm text-slate-400 font-mono">{inc.detectedTime}</span>
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
                               navigate(`/incidents/${inc.id}`);
                             }}
-                            className="text-[10px] font-bold text-[#1E5FBF] hover:underline flex items-center gap-0.5 cursor-pointer"
+                            className="btn-text text-xs text-[#1E5FBF] hover:underline flex items-center gap-0.5 cursor-pointer font-body"
                           >
                             <span>Open Dossier</span>
                             <ChevronRight className="w-3 h-3" />
@@ -624,7 +624,7 @@ export const MapPage: React.FC = () => {
             ) : (
               <button
                 onClick={() => setShowRightIncidents(true)}
-                className="bg-white/90 backdrop-blur-md border border-[#E1EEF9] px-3 py-2 rounded-xl shadow-lg text-xs font-bold text-[#0B2545] flex items-center gap-1.5 hover:bg-white transition-all cursor-pointer"
+                className="bg-white/90 backdrop-blur-md border border-[#E1EEF9] px-3 py-2 rounded-xl shadow-lg btn-text text-[#0B2545] flex items-center gap-1.5 hover:bg-white transition-all cursor-pointer font-body"
               >
                 <AlertTriangle className="w-3.5 h-3.5 text-rose-600" />
                 <span>Show Incidents ({filteredIncidents.length})</span>

@@ -109,8 +109,8 @@ export const FloatingLayersPanel: React.FC<FloatingLayersPanelProps> = ({
       >
         <div className="flex items-center gap-2">
           <Layers className="w-4 h-4 text-[#185ADB]" />
-          <span className="text-xs font-bold text-[#0B2545]">Layers</span>
-          <span className="px-1.5 py-0.5 rounded-full bg-sky-50 border border-sky-200 text-[10px] font-mono font-bold text-[#185ADB]">
+          <span className="font-display font-semibold text-xs tracking-wide text-[#0B2545]">Layers</span>
+          <span className="px-1.5 py-0.5 rounded-full bg-sky-50 border border-sky-200 text-[10px] font-mono font-semibold text-[#185ADB]">
             {activeCount}/{LAYER_DEFINITIONS.length}
           </span>
         </div>
@@ -123,12 +123,12 @@ export const FloatingLayersPanel: React.FC<FloatingLayersPanelProps> = ({
 
       {/* Panel Body */}
       {!isCollapsed && (
-        <div className="p-3 max-h-[calc(100vh-280px)] overflow-y-auto custom-port-scrollbar space-y-3.5 text-xs">
+        <div className="p-3 max-h-[calc(100vh-280px)] overflow-y-auto custom-port-scrollbar space-y-3.5 text-xs font-body">
           {categories.map((cat) => {
             const catLayers = LAYER_DEFINITIONS.filter((l) => l.category === cat);
             return (
               <div key={cat} className="space-y-1.5">
-                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-0.5">
+                <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider px-0.5 font-body">
                   {cat}
                 </div>
                 <div className="space-y-1">
@@ -142,7 +142,7 @@ export const FloatingLayersPanel: React.FC<FloatingLayersPanelProps> = ({
                         <div className="flex items-center gap-2 min-w-0 pr-2">
                           {renderIcon(item)}
                           <span
-                            className={`text-[11px] truncate leading-tight ${
+                            className={`text-[12px] truncate leading-tight font-body ${
                               isChecked ? "font-semibold text-slate-700" : "text-slate-400"
                             }`}
                           >
@@ -189,12 +189,12 @@ export const FloatingLayersPanel: React.FC<FloatingLayersPanelProps> = ({
               onClick={() => {
                 if (onTriggerToast) onTriggerToast("Add Custom Map Layer: WMS / GeoJSON / XYZ endpoint modal opened.");
               }}
-              className="text-[11px] font-bold text-[#185ADB] hover:text-[#0B2545] flex items-center gap-1 transition-colors cursor-pointer"
+              className="text-[12px] font-semibold text-[#185ADB] hover:text-[#0B2545] flex items-center gap-1 transition-colors cursor-pointer font-body"
             >
               <Plus className="w-3 h-3" />
               <span>Add Layer</span>
             </button>
-            <span className="text-[9px] text-slate-400 font-mono">EPSG:4326</span>
+            <span className="text-[10px] text-slate-400 font-mono">EPSG:4326</span>
           </div>
         </div>
       )}

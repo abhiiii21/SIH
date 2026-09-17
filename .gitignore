@@ -44,5 +44,9 @@ Thumbs.db
 .vscode/
 .idea/
 
-# Generated Reports
-backend/storage/reports/*.pdf
+# Generated Reports & Storage Uploads
+backend/storage/reports/*
+!backend/storage/reports/.gitkeep
+backend/storage/avatars/*
+!backend/storage/avatars/.gitkeep
+scratch/

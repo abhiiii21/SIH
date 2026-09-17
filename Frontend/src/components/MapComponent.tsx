@@ -343,14 +343,14 @@ export const MapComponent: React.FC<MapComponentProps> = ({
         const marker = L.marker(markerPos, { icon: customIcon });
 
         const popupContent = `
-          <div style="font-family: ui-monospace, monospace; font-size: 11px; color: #f8fafc; min-width: 210px; padding: 2px;">
+          <div style="font-family: Inter, sans-serif; font-size: 12px; color: #f8fafc; min-width: 230px; padding: 4px;">
             <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; padding-bottom: 4px;">
-              <span style="font-weight: 700; color: #ffffff;">${vessel.vessel_name}</span>
-              <span style="font-size: 10px; font-weight: 700; color: ${isPrimary ? '#f87171' : '#fbbf24'};">
+              <span style="font-weight: 700; color: #ffffff; font-size: 13px;">${vessel.vessel_name}</span>
+              <span style="font-size: 11px; font-weight: 700; color: ${isPrimary ? '#f87171' : '#fbbf24'}; font-family: ui-monospace, monospace;">
                 ${vessel.liability_probability_pct}% LIAB
               </span>
             </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding-top: 6px; font-size: 10.5px; color: #cbd5e1;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding-top: 6px; font-size: 11px; color: #cbd5e1; font-family: ui-monospace, monospace;">
               <span style="color: #94a3b8;">IMO / MMSI:</span> <span>${vessel.imo}</span>
               <span style="color: #94a3b8;">Type:</span> <span>${vessel.vessel_type}</span>
               <span style="color: #94a3b8;">Origin CPA:</span> <span style="font-weight: 700; color: #f87171;">${vessel.closest_approach_km} km</span>
@@ -358,7 +358,7 @@ export const MapComponent: React.FC<MapComponentProps> = ({
               <span style="color: #94a3b8;">AIS Gap:</span> <span style="color: ${vessel.max_transponder_gap_mins > 30 ? '#f87171' : '#cbd5e1'}">${vessel.max_transponder_gap_mins} mins</span>
             </div>
             ${vessel.anomalies && vessel.anomalies.length > 0
-            ? `<div style="font-size: 10px; background: #18181b; border-left: 2px solid #ef4444; padding: 3px 6px; margin-top: 6px; color: #fca5a5;">
+            ? `<div style="font-size: 11.5px; line-height: 1.4; background: #18181b; border-left: 3px solid #ef4444; border-radius: 4px; padding: 4px 8px; margin-top: 6px; color: #fca5a5;">
                      ${vessel.anomalies[0].description}
                    </div>`
             : ""

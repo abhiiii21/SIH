@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { getAvatarUrl } from "../services/api";
 import {
   INCIDENT_DATA,
   VesselCandidate,
@@ -236,11 +237,11 @@ export const IncidentDetailPage: React.FC = () => {
                 <path d="M7 16h10v2H7zm2 3h6v1.5H9z" />
               </svg>
             </div>
-            <div className="hidden sm:block leading-tight">
-              <div className="text-[11px] font-bold tracking-wide text-[#0B2545] uppercase">
+            <div className="hidden sm:block leading-tight font-body">
+              <div className="text-[11px] font-semibold tracking-wide text-[#0B2545] uppercase">
                 Ministry of Defence
               </div>
-              <div className="text-[10px] text-slate-500 font-medium">Government of India</div>
+              <div className="text-[10px] text-slate-500 font-normal">Government of India</div>
             </div>
           </div>
 
@@ -267,14 +268,14 @@ export const IncidentDetailPage: React.FC = () => {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-lg font-black tracking-[0.18em] text-[#0B2545]">
+                <span className="font-display text-lg font-bold tracking-[0.16em] text-[#0B2545]">
                   SAHAYYA
                 </span>
-                <span className="bg-emerald-100 text-emerald-700 border border-emerald-300 text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wider">
+                <span className="bg-emerald-100 text-emerald-700 border border-emerald-300 text-[9px] font-semibold px-1.5 py-0.5 rounded-full uppercase tracking-wider font-body">
                   BETA
                 </span>
               </div>
-              <p className="text-[10px] text-slate-500 hidden md:block">
+              <p className="text-[10px] text-slate-500 hidden md:block font-body">
                 Safer Seas. Cleaner Oceans. Stronger Tomorrow.
               </p>
             </div>
@@ -282,7 +283,7 @@ export const IncidentDetailPage: React.FC = () => {
         </div>
 
         {/* Center: Search */}
-        <div className="hidden md:flex flex-1 max-w-md mx-6">
+        <div className="hidden md:flex flex-1 max-w-md mx-6 font-body">
           <div className="relative w-full flex items-center">
             <Search className="w-4 h-4 text-slate-400 absolute left-3 pointer-events-none" />
             <input
@@ -292,7 +293,7 @@ export const IncidentDetailPage: React.FC = () => {
               onFocus={() => setIsSearchFocused(true)}
               onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}
               placeholder="Search vessel (IMO, name), location or coordinates..."
-              className="w-full pl-9 pr-12 py-1.5 rounded-xl bg-[#F8FBFE] border border-[#E1EEF9] text-xs text-slate-700 placeholder-slate-400 focus:outline-none focus:border-[#1E5FBF] focus:bg-white focus:ring-1 focus:ring-[#1E5FBF] transition-all"
+              className="w-full pl-9 pr-12 py-1.5 rounded-xl bg-[#F8FBFE] border border-[#E1EEF9] text-xs text-slate-700 placeholder-slate-400 focus:outline-none focus:border-[#1E5FBF] focus:bg-white focus:ring-1 focus:ring-[#1E5FBF] transition-all font-body"
             />
             <span className="absolute right-2.5 px-1.5 py-0.5 rounded text-[10px] font-mono bg-white border border-[#E1EEF9] text-slate-500 pointer-events-none">
               ⌘ K
@@ -302,7 +303,7 @@ export const IncidentDetailPage: React.FC = () => {
 
         {/* Right: Operational Status + Bell + User */}
         <div className="flex items-center gap-3">
-          <div className="hidden lg:flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200/80 text-emerald-700 text-xs font-semibold">
+          <div className="hidden lg:flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200/80 text-emerald-700 text-xs font-semibold font-body">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
             <span>Systems Operational</span>
           </div>
@@ -322,14 +323,24 @@ export const IncidentDetailPage: React.FC = () => {
               onClick={() => setShowUserMenu(!showUserMenu)}
               className="flex items-center gap-2 pl-2 pr-1.5 py-1 rounded-xl hover:bg-[#F0F7FD] transition-colors cursor-pointer"
             >
-              <div className="w-8 h-8 rounded-full bg-[#0B2545] text-white text-xs font-black flex items-center justify-center shadow-sm">
-                {user?.name ? user.name.slice(0, 2).toUpperCase() : "CG"}
+              <div className="w-8 h-8 rounded-full bg-[#0B2545] text-white text-xs font-black flex items-center justify-center shadow-sm overflow-hidden border border-sky-200">
+                {user?.avatar_url ? (
+                  <img
+                    src={getAvatarUrl(user.avatar_url)}
+                    alt={user.name || "Officer"}
+                    className="w-full h-full object-cover"
+                  />
+                ) : user?.name ? (
+                  user.name.slice(0, 2).toUpperCase()
+                ) : (
+                  "CG"
+                )}
               </div>
               <div className="hidden sm:block text-left leading-tight">
                 <div className="text-xs font-bold text-[#0B2545]">
                   {user?.name || "Commander S. Kumar"}
                 </div>
-                <div className="text-[10px] text-slate-500">Coast Guard Ops</div>
+                <div className="text-[10px] text-slate-500">{user?.role || "Coast Guard Ops"}</div>
               </div>
               <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
             </button>
@@ -338,14 +349,23 @@ export const IncidentDetailPage: React.FC = () => {
               <div className="absolute right-0 mt-2 w-48 bg-white border border-[#E1EEF9] rounded-2xl shadow-[0_10px_30px_rgba(30,95,191,0.15)] p-2 z-50 animate-fadeIn">
                 <div className="px-3 py-2 border-b border-slate-100 text-xs">
                   <div className="font-bold text-[#0B2545]">{user?.name || "S. Kumar"}</div>
-                  <div className="text-[10px] text-slate-400">Commander (West)</div>
+                  <div className="text-[10px] text-slate-400">{user?.role || "Commander (West)"}</div>
                 </div>
+                <button
+                  onClick={() => {
+                    setShowUserMenu(false);
+                    navigate("/settings");
+                  }}
+                  className="w-full text-left px-3 py-2 rounded-lg hover:bg-slate-50 text-xs text-slate-700 flex items-center gap-2 cursor-pointer mt-1"
+                >
+                  <span>Profile & Settings</span>
+                </button>
                 <button
                   onClick={() => {
                     logout();
                     navigate("/login");
                   }}
-                  className="w-full text-left px-3 py-2 rounded-lg hover:bg-rose-50 text-xs text-rose-600 flex items-center gap-2 cursor-pointer font-semibold mt-1"
+                  className="w-full text-left px-3 py-2 rounded-lg hover:bg-rose-50 text-xs text-rose-600 flex items-center gap-2 cursor-pointer font-semibold"
                 >
                   <LogOut className="w-3.5 h-3.5" />
                   <span>Logout</span>
@@ -374,13 +394,13 @@ export const IncidentDetailPage: React.FC = () => {
             }`}
           >
             {[
-              { id: "Home", icon: Home, label: "Home", path: "/dashboard" },
+              { id: "Dashboard", icon: Home, label: "Home", path: "/dashboard" },
               { id: "Map", icon: MapIcon, label: "Map", path: "/map" },
               { id: "Incidents", icon: Activity, label: "Incidents", path: `/incidents/${effectiveIncidentId}` },
               { id: "Vessels", icon: Ship, label: "Vessels", path: "/vessels" },
               { id: "Analysis", icon: BarChart3, label: "Analysis", path: "/analysis" },
               { id: "Settings", icon: Settings, label: "Settings", path: "/settings" },
-              { id: "Help", icon: HelpCircle, label: "Help" },
+              { id: "Help", icon: HelpCircle, label: "Help", path: "" },
             ].map((item) => {
               const Icon = item.icon;
               const isActive = activeNav === item.id;
@@ -393,6 +413,8 @@ export const IncidentDetailPage: React.FC = () => {
                     setActiveNav(item.id);
                     if (item.path) {
                       navigate(item.path);
+                    } else if (item.id === "Help") {
+                      triggerToast("Help & Standard Operating Procedures (SOP) Reference Guide");
                     } else {
                       triggerToast(`Switched view to: ${item.label}`);
                     }
@@ -434,7 +456,7 @@ export const IncidentDetailPage: React.FC = () => {
             {/* ================================================================= */}
             {/* BREADCRUMB ROW                                                   */}
             {/* ================================================================= */}
-            <nav className="flex items-center gap-2 text-xs font-semibold text-slate-500">
+            <nav className="flex items-center gap-2 text-xs font-medium text-slate-500 font-body">
               <button
                 onClick={() => navigate("/dashboard")}
                 className="flex items-center gap-1 hover:text-[#0B2545] transition-colors cursor-pointer"
@@ -450,7 +472,7 @@ export const IncidentDetailPage: React.FC = () => {
                 Incidents
               </button>
               <span className="text-slate-300">/</span>
-              <span className="font-bold text-[#0B2545] font-mono">{effectiveIncidentId}</span>
+              <span className="font-semibold text-[#0B2545] font-mono">{effectiveIncidentId}</span>
             </nav>
 
             {/* ================================================================= */}
@@ -459,26 +481,26 @@ export const IncidentDetailPage: React.FC = () => {
             <div className="flex flex-col xl:flex-row items-start xl:items-center justify-between gap-4">
               <div>
                 <div className="flex items-center gap-3">
-                  <h1 className="text-2xl sm:text-3xl font-black text-[#0B2545] tracking-tight">
+                  <h1 className="heading-page text-[#0B2545]">
                     {effectiveIncidentId}
                   </h1>
-                  <span className="bg-rose-100 text-rose-700 border border-rose-200 text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1.5 shadow-2xs">
+                  <span className="bg-rose-100 text-rose-700 border border-rose-200 text-xs font-semibold px-3 py-1 rounded-full flex items-center gap-1.5 shadow-2xs font-body badge-text">
                     <AlertTriangle className="w-3.5 h-3.5 text-rose-600 animate-pulse" />
                     <span>Live Incident</span>
                   </span>
                 </div>
-                <p className="text-xs text-slate-500 font-mono mt-1">
-                  Mumbai High Offshore &nbsp;|&nbsp; Arabian Sea &nbsp;|&nbsp; 18.78°N, 72.51°E
+                <p className="text-xs text-slate-500 mt-1 font-body">
+                  <span>Mumbai High Offshore</span> &nbsp;|&nbsp; <span>Arabian Sea</span> &nbsp;|&nbsp; <span className="font-mono text-slate-600 data-mono">18.78°N, 72.51°E</span>
                 </p>
               </div>
 
               {/* Action Buttons & Stepper Container */}
-              <div className="flex flex-col sm:flex-row xl:flex-col items-end gap-3 w-full xl:w-auto">
+              <div className="flex flex-col sm:flex-row xl:flex-col items-end gap-3 w-full xl:w-auto font-body">
                 {/* Top Action Row */}
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => setShowShareModal(true)}
-                    className="px-3 py-1.5 rounded-xl border border-[#E1EEF9] bg-white hover:bg-[#F8FBFE] text-xs font-semibold text-slate-700 flex items-center gap-1.5 shadow-[0_2px_8px_rgba(30,95,191,0.06)] transition-all cursor-pointer"
+                    className="px-3 py-1.5 rounded-xl border border-[#E1EEF9] bg-white hover:bg-[#F8FBFE] text-xs font-semibold text-slate-700 flex items-center gap-1.5 shadow-[0_2px_8px_rgba(30,95,191,0.06)] transition-all cursor-pointer btn-text"
                   >
                     <Share2 className="w-3.5 h-3.5 text-slate-500" />
                     <span>Share</span>
@@ -507,7 +529,7 @@ export const IncidentDetailPage: React.FC = () => {
                       URL.revokeObjectURL(url);
                       triggerToast(`Exported ${effectiveIncidentId} GeoJSON telemetry dataset`);
                     }}
-                    className="px-3 py-1.5 rounded-xl border border-[#E1EEF9] bg-white hover:bg-[#F8FBFE] text-xs font-semibold text-slate-700 flex items-center gap-1.5 shadow-[0_2px_8px_rgba(30,95,191,0.06)] transition-all cursor-pointer"
+                    className="px-3 py-1.5 rounded-xl border border-[#E1EEF9] bg-white hover:bg-[#F8FBFE] text-xs font-semibold text-slate-700 flex items-center gap-1.5 shadow-[0_2px_8px_rgba(30,95,191,0.06)] transition-all cursor-pointer btn-text"
                   >
                     <Download className="w-3.5 h-3.5 text-slate-500" />
                     <span>Export</span>
@@ -515,7 +537,7 @@ export const IncidentDetailPage: React.FC = () => {
 
                   <button
                     onClick={() => setShowReportModal(true)}
-                    className="px-3.5 py-1.5 rounded-xl bg-[#0B2545] hover:bg-[#123A66] text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
+                    className="px-3.5 py-1.5 rounded-xl bg-[#0B2545] hover:bg-[#123A66] text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm transition-all cursor-pointer btn-text"
                   >
                     <FileText className="w-3.5 h-3.5" />
                     <span>Generate Report</span>
@@ -531,13 +553,13 @@ export const IncidentDetailPage: React.FC = () => {
                     </button>
 
                     {showOverflowMenu && (
-                      <div className="absolute right-0 mt-2 w-48 bg-white border border-[#E1EEF9] rounded-2xl shadow-[0_12px_36px_rgba(30,95,191,0.18)] p-1.5 z-50 text-xs animate-fadeIn">
+                      <div className="absolute right-0 mt-2 w-48 bg-white border border-[#E1EEF9] rounded-2xl shadow-[0_12px_36px_rgba(30,95,191,0.18)] p-1.5 z-50 text-xs animate-fadeIn font-body">
                         <button
                           onClick={() => {
                             setShowOverflowMenu(false);
                             triggerToast("Cloned incident record into sandbox workspace.");
                           }}
-                          className="w-full text-left px-3 py-2 rounded-xl hover:bg-[#F8FBFE] text-slate-700 flex items-center gap-2 cursor-pointer"
+                          className="w-full text-left px-3 py-2 rounded-xl hover:bg-[#F8FBFE] text-slate-700 flex items-center gap-2 cursor-pointer font-medium"
                         >
                           <Copy className="w-3.5 h-3.5 text-slate-400" />
                           <span>Duplicate Incident</span>
@@ -547,7 +569,7 @@ export const IncidentDetailPage: React.FC = () => {
                             setShowOverflowMenu(false);
                             triggerToast("Incident archived to national maritime registry.");
                           }}
-                          className="w-full text-left px-3 py-2 rounded-xl hover:bg-[#F8FBFE] text-slate-700 flex items-center gap-2 cursor-pointer"
+                          className="w-full text-left px-3 py-2 rounded-xl hover:bg-[#F8FBFE] text-slate-700 flex items-center gap-2 cursor-pointer font-medium"
                         >
                           <Clock className="w-3.5 h-3.5 text-slate-400" />
                           <span>Archive Record</span>
@@ -598,19 +620,19 @@ export const IncidentDetailPage: React.FC = () => {
             {/* ================================================================= */}
             {/* ROW OF 4 STAT CARDS                                              */}
             {/* ================================================================= */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 font-body">
               {/* Card 1: Spill Area */}
               <div className="p-4 rounded-2xl bg-white border border-[#E1EEF9] shadow-[0_4px_20px_rgba(30,95,191,0.08)] hover:shadow-[0_6px_24px_rgba(30,95,191,0.12)] transition-all flex items-start justify-between">
                 <div>
-                  <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                  <div className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider font-display">
                     Spill Area
                   </div>
-                  <div className="text-2xl font-black text-[#0B2545] mt-1">276.04 km²</div>
+                  <div className="text-2xl font-bold tracking-tight text-[#0B2545] mt-1 kpi-number">276.04 km²</div>
                   <div className="flex items-center gap-1.5 mt-1">
-                    <span className="text-[10px] font-bold text-rose-600 bg-rose-50 border border-rose-200 px-1.5 py-0.5 rounded">
+                    <span className="text-[10px] font-semibold text-rose-600 bg-rose-50 border border-rose-200 px-1.5 py-0.5 rounded badge-text">
                       ↑ 12.4%
                     </span>
-                    <span className="text-[10px] text-slate-400">From previous estimate</span>
+                    <span className="text-[10px] text-slate-400 font-normal">From previous estimate</span>
                   </div>
                 </div>
                 <div className="w-10 h-10 rounded-xl bg-sky-50 text-[#1E5FBF] border border-sky-200/80 flex items-center justify-center shrink-0 shadow-2xs">
@@ -621,13 +643,13 @@ export const IncidentDetailPage: React.FC = () => {
               {/* Card 2: Probable Origin */}
               <div className="p-4 rounded-2xl bg-white border border-[#E1EEF9] shadow-[0_4px_20px_rgba(30,95,191,0.08)] hover:shadow-[0_6px_24px_rgba(30,95,191,0.12)] transition-all flex items-start justify-between">
                 <div>
-                  <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                  <div className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider font-display">
                     Probable Origin
                   </div>
-                  <div className="text-xl font-black text-[#0B2545] mt-1 font-mono">
+                  <div className="text-xl font-semibold text-[#0B2545] mt-1 font-mono data-mono">
                     18.78°N, 72.51°E
                   </div>
-                  <div className="text-[10px] text-amber-600 font-semibold mt-1">
+                  <div className="text-[10px] text-amber-600 font-semibold mt-1 font-body">
                     T - 18 h to T - 30 h
                   </div>
                 </div>
@@ -639,11 +661,11 @@ export const IncidentDetailPage: React.FC = () => {
               {/* Card 3: Distance to Coast */}
               <div className="p-4 rounded-2xl bg-white border border-[#E1EEF9] shadow-[0_4px_20px_rgba(30,95,191,0.08)] hover:shadow-[0_6px_24px_rgba(30,95,191,0.12)] transition-all flex items-start justify-between">
                 <div>
-                  <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                  <div className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider font-display">
                     Distance to Coast
                   </div>
-                  <div className="text-2xl font-black text-[#0B2545] mt-1">38 km</div>
-                  <div className="text-[10px] text-[#0EA5B7] font-semibold mt-1">
+                  <div className="text-2xl font-bold tracking-tight text-[#0B2545] mt-1 kpi-number">38 km</div>
+                  <div className="text-[11px] text-[#0EA5B7] font-semibold mt-1 font-body">
                     ETA ~ 16.4 hours (Alibaug)
                   </div>
                 </div>
@@ -655,13 +677,13 @@ export const IncidentDetailPage: React.FC = () => {
               {/* Card 4: Severity Score Gauge */}
               <div className="p-4 rounded-2xl bg-white border border-[#E1EEF9] shadow-[0_4px_20px_rgba(30,95,191,0.08)] hover:shadow-[0_6px_24px_rgba(30,95,191,0.12)] transition-all flex items-start justify-between">
                 <div>
-                  <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                  <div className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider font-display">
                     Severity Score
                   </div>
                   <div className="flex items-center gap-2 mt-1">
-                    <span className="text-2xl font-black text-[#0B2545]">82</span>
+                    <span className="text-2xl font-bold tracking-tight text-[#0B2545] kpi-number">82</span>
                     <span className="text-xs text-slate-400 font-mono">/ 100</span>
-                    <span className="bg-rose-100 text-rose-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-rose-200">
+                    <span className="bg-rose-100 text-rose-700 text-[10px] font-semibold px-2 py-0.5 rounded-full border border-rose-200 badge-text">
                       High Risk
                     </span>
                   </div>
@@ -679,44 +701,44 @@ export const IncidentDetailPage: React.FC = () => {
             {/* ================================================================= */}
             {/* ENVIRONMENTAL CONDITIONS BAR                                     */}
             {/* ================================================================= */}
-            <div className="p-3.5 rounded-2xl bg-white border border-[#E1EEF9] shadow-[0_4px_20px_rgba(30,95,191,0.06)] flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+            <div className="p-3.5 rounded-2xl bg-white border border-[#E1EEF9] shadow-[0_4px_20px_rgba(30,95,191,0.06)] flex flex-col md:flex-row items-start md:items-center justify-between gap-3 font-body">
               <div className="flex items-center gap-2">
                 <Wind className="w-4 h-4 text-[#1E5FBF]" />
-                <span className="text-xs font-bold text-[#0B2545] uppercase tracking-wider">
+                <span className="heading-section text-xs uppercase tracking-wider text-[#0B2545]">
                   Environmental Conditions (Now)
                 </span>
               </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-8 w-full md:w-auto text-xs font-mono">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-8 w-full md:w-auto text-xs">
                 <div className="flex items-center gap-2">
                   <Wind className="w-3.5 h-3.5 text-slate-400" />
                   <div>
-                    <span className="text-[10px] text-slate-400 block font-sans">Wind</span>
-                    <span className="font-bold text-slate-700">5.1 m/s (289° W)</span>
+                    <span className="text-[10px] text-slate-400 block font-body">Wind</span>
+                    <span className="font-mono font-medium text-slate-700 data-mono">5.1 m/s (289° W)</span>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-2">
                   <Waves className="w-3.5 h-3.5 text-[#0EA5B7]" />
                   <div>
-                    <span className="text-[10px] text-slate-400 block font-sans">Waves</span>
-                    <span className="font-bold text-slate-700">1.0 m</span>
+                    <span className="text-[10px] text-slate-400 block font-body">Waves</span>
+                    <span className="font-mono font-medium text-slate-700 data-mono">1.0 m</span>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-2">
                   <Navigation className="w-3.5 h-3.5 text-[#1E5FBF]" />
                   <div>
-                    <span className="text-[10px] text-slate-400 block font-sans">Current</span>
-                    <span className="font-bold text-slate-700">0.67 m/s (189° S)</span>
+                    <span className="text-[10px] text-slate-400 block font-body">Current</span>
+                    <span className="font-mono font-medium text-slate-700 data-mono">0.67 m/s (189° S)</span>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-2">
                   <Thermometer className="w-3.5 h-3.5 text-amber-500" />
                   <div>
-                    <span className="text-[10px] text-slate-400 block font-sans">SST</span>
-                    <span className="font-bold text-slate-700">28.3°C</span>
+                    <span className="text-[10px] text-slate-400 block font-body">SST</span>
+                    <span className="font-mono font-medium text-slate-700 data-mono">28.3°C</span>
                   </div>
                 </div>
               </div>
@@ -725,7 +747,7 @@ export const IncidentDetailPage: React.FC = () => {
             {/* ================================================================= */}
             {/* INCIDENT WORKSPACE SUB-TABS (Tactical, Recovery, Digital Twin)   */}
             {/* ================================================================= */}
-            <div className="flex items-center justify-between gap-4 p-1.5 bg-white/90 backdrop-blur-md rounded-2xl border border-[#E1EEF9] shadow-sm">
+            <div className="flex items-center justify-between gap-4 p-1.5 bg-white/90 backdrop-blur-md rounded-2xl border border-[#E1EEF9] shadow-sm font-body">
               <div className="flex items-center gap-2 overflow-x-auto">
                 {[
                   { id: "tactical", label: "Tactical Intelligence Dossier", icon: Activity, badge: "10 Panels" },
@@ -738,7 +760,7 @@ export const IncidentDetailPage: React.FC = () => {
                     <button
                       key={t.id}
                       onClick={() => setActiveIncidentTab(t.id as any)}
-                      className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
+                      className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer whitespace-nowrap btn-text ${
                         isSel
                           ? "bg-[#0B2545] text-white shadow-sm"
                           : "text-slate-600 hover:text-[#0B2545] hover:bg-slate-100"
@@ -748,7 +770,7 @@ export const IncidentDetailPage: React.FC = () => {
                       <span>{t.label}</span>
                       {t.badge && (
                         <span
-                          className={`text-[9px] px-1.5 py-0.2 rounded-md ${
+                          className={`text-[9px] font-semibold px-1.5 py-0.2 rounded-md badge-text ${
                             isSel ? "bg-white/20 text-white" : "bg-sky-100 text-[#1E5FBF]"
                           }`}
                         >
@@ -760,7 +782,7 @@ export const IncidentDetailPage: React.FC = () => {
                 })}
               </div>
 
-              <div className="hidden sm:flex items-center gap-2 pr-3 text-xs font-mono text-slate-500">
+              <div className="hidden sm:flex items-center gap-2 pr-3 text-xs font-mono text-slate-500 data-mono">
                 <span>EEZ Grid: 18.78°N / 72.51°E</span>
               </div>
             </div>
@@ -772,12 +794,12 @@ export const IncidentDetailPage: React.FC = () => {
                 {/* ================================================================= */}
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
               {/* PANEL A: Incident Overview (4 cols) */}
-              <div className="lg:col-span-4 p-4 rounded-2xl bg-white border border-[#E1EEF9] shadow-[0_4px_20px_rgba(30,95,191,0.08)] hover:shadow-[0_6px_24px_rgba(30,95,191,0.12)] transition-all flex flex-col justify-between">
+              <div className="lg:col-span-4 p-4 rounded-2xl bg-white border border-[#E1EEF9] shadow-[0_4px_20px_rgba(30,95,191,0.08)] hover:shadow-[0_6px_24px_rgba(30,95,191,0.12)] transition-all flex flex-col justify-between font-body">
                 <div>
                   <div className="flex items-center justify-between pb-2 border-b border-[#E1EEF9]">
                     <div className="flex items-center gap-2">
                       <FileText className="w-4 h-4 text-[#1E5FBF]" />
-                      <h2 className="text-xs font-bold text-[#0B2545] uppercase tracking-wider">
+                      <h2 className="heading-section text-xs uppercase tracking-wider text-[#0B2545]">
                         Incident Overview
                       </h2>
                     </div>
@@ -796,51 +818,51 @@ export const IncidentDetailPage: React.FC = () => {
                     </button>
                   </div>
 
-                  <p className="text-xs text-slate-600 leading-relaxed mt-3 p-2.5 rounded-xl bg-[#F8FBFE] border border-[#E1EEF9]">
+                  <p className="body-description text-sm sm:text-[15px] text-slate-700 leading-relaxed mt-3 p-3.5 rounded-xl bg-[#F8FBFE] border border-[#E1EEF9] font-body">
                     {overviewDescription}
                   </p>
 
                   {/* 2x2 Detail Grid */}
                   <div className="grid grid-cols-2 gap-2 mt-3 text-[11px]">
-                    <div className="p-2 rounded-xl bg-slate-50 border border-slate-200/80">
+                    <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80">
                       <div className="flex items-center gap-1.5 text-slate-400 text-[10px] font-medium">
                         <AlertOctagon className="w-3 h-3 text-amber-500" />
                         <span>Incident Type</span>
                       </div>
-                      <div className="font-bold text-[#0B2545] mt-0.5">{overviewType}</div>
+                      <div className="font-bold text-[#0B2545] mt-0.5 font-body text-xs">{overviewType}</div>
                     </div>
 
-                    <div className="p-2 rounded-xl bg-slate-50 border border-slate-200/80">
+                    <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80">
                       <div className="flex items-center gap-1.5 text-slate-400 text-[10px] font-medium">
                         <Satellite className="w-3 h-3 text-[#1E5FBF]" />
                         <span>Detection Source</span>
                       </div>
-                      <div className="font-bold text-[#0B2545] mt-0.5 font-mono">
+                      <div className="font-bold text-[#0B2545] mt-0.5 font-mono text-xs">
                         {INCIDENT_DATA.overview.source}
                       </div>
                     </div>
 
-                    <div className="p-2 rounded-xl bg-slate-50 border border-slate-200/80">
+                    <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80">
                       <div className="flex items-center gap-1.5 text-slate-400 text-[10px] font-medium">
                         <Clock className="w-3 h-3 text-slate-500" />
                         <span>Detected At</span>
                       </div>
-                      <div className="font-bold text-[#0B2545] mt-0.5 font-mono text-[10px]">
+                      <div className="font-bold text-[#0B2545] mt-0.5 font-mono text-xs">
                         {INCIDENT_DATA.overview.detected}
                       </div>
                     </div>
 
-                    <div className="p-2 rounded-xl bg-slate-50 border border-slate-200/80">
+                    <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80">
                       <div className="flex items-center gap-1.5 text-slate-400 text-[10px] font-medium">
                         <Shield className="w-3 h-3 text-emerald-600" />
                         <span>Investigating Agency</span>
                       </div>
-                      <div className="font-bold text-[#0B2545] mt-0.5 truncate">{overviewAgency}</div>
+                      <div className="font-bold text-[#0B2545] mt-0.5 truncate font-body text-xs">{overviewAgency}</div>
                     </div>
                   </div>
                 </div>
 
-                <div className="mt-3 pt-2.5 border-t border-[#E1EEF9] flex items-center justify-between text-[10px] text-slate-500">
+                <div className="mt-3 pt-2.5 border-t border-[#E1EEF9] flex items-center justify-between text-[10px] text-slate-500 font-body">
                   <div className="flex items-center gap-1.5">
                     <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
                     <span className="font-bold text-emerald-700">Status: {INCIDENT_DATA.overview.status}</span>
@@ -1147,18 +1169,18 @@ export const IncidentDetailPage: React.FC = () => {
               </div>
 
               {/* PANEL F: Vessel Candidates */}
-              <div className="p-4 rounded-2xl bg-white border border-[#E1EEF9] shadow-[0_4px_20px_rgba(30,95,191,0.08)] hover:shadow-[0_6px_24px_rgba(30,95,191,0.12)] transition-all flex flex-col justify-between">
+              <div className="p-4 rounded-2xl bg-white border border-[#E1EEF9] shadow-[0_4px_20px_rgba(30,95,191,0.08)] hover:shadow-[0_6px_24px_rgba(30,95,191,0.12)] transition-all flex flex-col justify-between font-body">
                 <div>
                   <div className="flex items-center justify-between pb-2 border-b border-[#E1EEF9]">
                     <div className="flex items-center gap-2">
                       <Ship className="w-4 h-4 text-[#0B2545]" />
-                      <h2 className="text-xs font-bold text-[#0B2545] uppercase tracking-wider">
+                      <h2 className="heading-section text-xs uppercase tracking-wider text-[#0B2545]">
                         Vessel Candidates (3)
                       </h2>
                     </div>
                     <button
                       onClick={() => setShowAllCandidatesModal(true)}
-                      className="text-[11px] font-semibold text-[#1E5FBF] hover:underline cursor-pointer"
+                      className="text-[11px] font-semibold text-[#1E5FBF] hover:underline cursor-pointer font-body"
                     >
                       View All &rarr;
                     </button>
@@ -1213,34 +1235,38 @@ export const IncidentDetailPage: React.FC = () => {
                         className="p-2.5 rounded-xl bg-[#F8FBFE] hover:bg-[#EFF6FD] border border-[#E1EEF9] transition-all cursor-pointer"
                       >
                         <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-1.5 font-bold text-xs text-[#0B2545]">
-                            <span className="w-4 h-4 rounded-full bg-slate-200 text-slate-700 text-[10px] flex items-center justify-center font-mono">
+                          <div className="flex items-center gap-1.5 font-semibold text-xs text-[#0B2545] font-body">
+                            <span className="w-4 h-4 rounded-full bg-slate-200 text-slate-700 text-[10px] flex items-center justify-center font-mono data-mono-sm">
                               {c.rank}
                             </span>
                             <span>{c.name}</span>
                           </div>
-                          <span className={`text-xs font-black px-2 py-0.5 rounded-full border ${c.scoreColor}`}>
+                          <span className={`text-xs font-semibold px-2 py-0.5 rounded-full border font-mono data-mono ${c.scoreColor}`}>
                             {c.score}%
                           </span>
                         </div>
 
-                        <div className="text-[9px] text-slate-500 font-mono mt-1">
-                          IMO {c.imo} &nbsp;|&nbsp; {c.type} &nbsp;|&nbsp; {c.flag}
+                        <div className="text-[11px] text-slate-500 mt-1 font-body">
+                          <span className="font-mono text-[10px] text-slate-600">IMO {c.imo}</span>
+                          <span className="mx-1 text-slate-300">&bull;</span>
+                          <span>{c.type}</span>
+                          <span className="mx-1 text-slate-300">&bull;</span>
+                          <span>{c.flag}</span>
                         </div>
 
-                        <div className="grid grid-cols-3 gap-1 mt-1.5 pt-1.5 border-t border-slate-100 text-[9px] font-mono text-slate-600 text-center">
-                          <div>CPA: <span className="font-bold">{c.cpa}</span></div>
-                          <div>Min SOG: <span className="font-bold text-amber-600">{c.minSog}</span></div>
-                          <div>AIS Gap: <span className="font-bold text-rose-600">{c.aisGap}</span></div>
+                        <div className="grid grid-cols-3 gap-1 mt-1.5 pt-1.5 border-t border-slate-100 text-[10px] text-slate-600 text-center font-body">
+                          <div>CPA: <span className="font-mono font-medium text-slate-800">{c.cpa}</span></div>
+                          <div>Min SOG: <span className="font-mono font-medium text-amber-600">{c.minSog}</span></div>
+                          <div>AIS Gap: <span className="font-mono font-medium text-rose-600">{c.aisGap}</span></div>
                         </div>
 
-                        <div className="mt-2 pt-1.5 flex items-center justify-between border-t border-slate-100">
+                        <div className="mt-2 pt-1.5 flex items-center justify-between border-t border-slate-100 font-body">
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
                               setEvidenceModalCandidate(c.vesselObj);
                             }}
-                            className="text-[10px] font-bold text-[#1E5FBF] hover:underline flex items-center gap-1 cursor-pointer"
+                            className="text-[11px] font-semibold text-[#1E5FBF] hover:underline flex items-center gap-1 cursor-pointer btn-text"
                           >
                             <span>View 7D Evidence Graph</span>
                             <ExternalLink className="w-3 h-3" />
@@ -1263,12 +1289,12 @@ export const IncidentDetailPage: React.FC = () => {
             {/* ================================================================= */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {/* PANEL G: Probable Origin Analysis */}
-              <div className="p-4 rounded-2xl bg-white border border-[#E1EEF9] shadow-[0_4px_20px_rgba(30,95,191,0.08)] hover:shadow-[0_6px_24px_rgba(30,95,191,0.12)] transition-all flex flex-col justify-between">
+              <div className="p-4 rounded-2xl bg-white border border-[#E1EEF9] shadow-[0_4px_20px_rgba(30,95,191,0.08)] hover:shadow-[0_6px_24px_rgba(30,95,191,0.12)] transition-all flex flex-col justify-between font-body">
                 <div>
                   <div className="flex items-center justify-between pb-2 border-b border-[#E1EEF9]">
                     <div className="flex items-center gap-2">
                       <Target className="w-4 h-4 text-amber-500" />
-                      <h2 className="text-xs font-bold text-[#0B2545] uppercase tracking-wider">
+                      <h2 className="heading-section text-xs uppercase tracking-wider text-[#0B2545]">
                         Probable Origin Analysis
                       </h2>
                     </div>
@@ -1284,25 +1310,25 @@ export const IncidentDetailPage: React.FC = () => {
                       </div>
                     </div>
 
-                    <p className="text-[11px] text-slate-600 leading-snug">
+                    <p className="body-description text-sm text-slate-700 leading-relaxed font-body">
                       Most probable release location based on reverse Lagrangian particle tracking.
                     </p>
                   </div>
 
                   {/* 2x2 Stat Grid */}
                   <div className="grid grid-cols-2 gap-1.5 mt-3 text-[10px] font-mono">
-                    <div className="p-1.5 rounded-xl bg-[#F8FBFE] border border-[#E1EEF9]">
-                      <span className="text-slate-400 block font-sans text-[9px]">Coordinates</span>
-                      <span className="font-bold text-[#0B2545]">18.78°N, 72.51°E</span>
+                    <div className="p-2 rounded-xl bg-[#F8FBFE] border border-[#E1EEF9]">
+                      <span className="text-slate-400 block font-body text-[10px]">Coordinates</span>
+                      <span className="font-bold text-[#0B2545] font-mono text-xs">18.78°N, 72.51°E</span>
                     </div>
-                    <div className="p-1.5 rounded-xl bg-[#F8FBFE] border border-[#E1EEF9]">
-                      <span className="text-slate-400 block font-sans text-[9px]">Release Window</span>
-                      <span className="font-bold text-amber-600">T - 18h to T - 30h</span>
+                    <div className="p-2 rounded-xl bg-[#F8FBFE] border border-[#E1EEF9]">
+                      <span className="text-slate-400 block font-body text-[10px]">Release Window</span>
+                      <span className="font-bold text-amber-600 font-mono text-xs">T - 18h to T - 30h</span>
                     </div>
-                    <div className="p-1.5 rounded-xl bg-[#F8FBFE] border border-[#E1EEF9] col-span-2">
+                    <div className="p-2 rounded-xl bg-[#F8FBFE] border border-[#E1EEF9] col-span-2">
                       <div className="flex justify-between items-center">
-                        <span className="text-slate-400 font-sans text-[9px]">Attribution Confidence</span>
-                        <span className="font-bold text-emerald-700 font-mono">81 %</span>
+                        <span className="text-slate-400 font-body text-[10px]">Attribution Confidence</span>
+                        <span className="font-bold text-emerald-700 font-mono text-xs">81 %</span>
                       </div>
                       <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden mt-1">
                         <div className="h-full w-[81%] bg-gradient-to-r from-teal-500 to-emerald-600 rounded-full" />
@@ -1313,26 +1339,26 @@ export const IncidentDetailPage: React.FC = () => {
 
                 <button
                   onClick={() => setShowOriginModal(true)}
-                  className="w-full mt-3 py-1.5 rounded-xl border border-[#E1EEF9] hover:bg-[#F8FBFE] text-slate-700 text-xs font-semibold transition-all cursor-pointer text-center"
+                  className="w-full mt-3 py-1.5 rounded-xl border border-[#E1EEF9] hover:bg-[#F8FBFE] text-slate-700 text-xs font-semibold font-body transition-all cursor-pointer text-center"
                 >
                   View Full Origin Analysis &rarr;
                 </button>
               </div>
 
               {/* PANEL H: Potential Impact Assessment */}
-              <div className="p-4 rounded-2xl bg-white border border-[#E1EEF9] shadow-[0_4px_20px_rgba(30,95,191,0.08)] hover:shadow-[0_6px_24px_rgba(30,95,191,0.12)] transition-all flex flex-col justify-between">
+              <div className="p-4 rounded-2xl bg-white border border-[#E1EEF9] shadow-[0_4px_20px_rgba(30,95,191,0.08)] hover:shadow-[0_6px_24px_rgba(30,95,191,0.12)] transition-all flex flex-col justify-between font-body">
                 <div>
                   <div className="flex items-center justify-between pb-2 border-b border-[#E1EEF9]">
                     <div className="flex items-center gap-2">
                       <Shield className="w-4 h-4 text-rose-500" />
-                      <h2 className="text-xs font-bold text-[#0B2545] uppercase tracking-wider">
+                      <h2 className="heading-section text-xs uppercase tracking-wider text-[#0B2545]">
                         Potential Impact Assessment
                       </h2>
                     </div>
                   </div>
 
                   <div className="mt-3 space-y-2 text-xs">
-                    <div className="p-2 rounded-xl bg-[#F8FBFE] border border-[#E1EEF9] flex items-center justify-between">
+                    <div className="p-2.5 rounded-xl bg-[#F8FBFE] border border-[#E1EEF9] flex items-center justify-between font-body">
                       <div className="flex items-center gap-2">
                         <Clock className="w-3.5 h-3.5 text-slate-500" />
                         <span className="text-slate-600">Est. Time to Coast</span>
@@ -1534,7 +1560,7 @@ export const IncidentDetailPage: React.FC = () => {
                   </div>
 
                   {/* Recommended Deployment Summary Card */}
-                  <div className="mt-2.5 p-2 rounded-xl bg-amber-50/70 border border-amber-200/80 text-[10px] text-amber-900 leading-tight">
+                  <div className="mt-3 p-3 rounded-xl bg-amber-50/70 border border-amber-200/80 text-xs sm:text-[13px] text-amber-900 leading-relaxed font-body">
                     <span className="font-bold">Recommended Plan: </span>
                     Deploy <span className="font-semibold">ICGS Vikram</span> with 800m boom to {selectedPriorityZone.name.split(":")[0]} within 2h to prevent mangrove contamination.
                   </div>
@@ -1542,7 +1568,7 @@ export const IncidentDetailPage: React.FC = () => {
 
                 <button
                   onClick={() => setShowResponsePlanModal(true)}
-                  className="w-full mt-3 py-2 rounded-xl bg-gradient-to-r from-[#0B2545] to-[#1E5FBF] hover:from-[#123A66] hover:to-[#174EA6] text-white text-xs font-bold transition-all cursor-pointer text-center shadow-sm flex items-center justify-center gap-1.5"
+                  className="w-full mt-3 py-2.5 rounded-xl bg-gradient-to-r from-[#0B2545] to-[#1E5FBF] hover:from-[#123A66] hover:to-[#174EA6] text-white text-xs font-semibold font-body transition-all cursor-pointer text-center shadow-sm flex items-center justify-center gap-1.5"
                 >
                   <Sparkles className="w-3.5 h-3.5" />
                   <span>Execute Tactical Response Plan</span>
@@ -1769,10 +1795,10 @@ export const IncidentDetailPage: React.FC = () => {
             <div className="p-5 rounded-2xl bg-white border border-[#E1EEF9] shadow-[0_4px_20px_rgba(30,95,191,0.08)] space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#E1EEF9]">
                 <div>
-                  <h2 className="text-base font-bold text-[#0B2545]">
+                  <h2 className="heading-secondary text-base sm:text-lg font-bold text-[#0B2545]">
                     Marine Digital Twin &bull; Real-Time Hydrodynamic Drift Engine
                   </h2>
-                  <p className="text-xs text-slate-500">
+                  <p className="body-description text-sm text-slate-600 font-body mt-1 leading-relaxed">
                     Adjust ocean currents and atmospheric boundary winds to recalculate the forward trajectory and coastline landfall vector live.
                   </p>
                 </div>
@@ -2003,14 +2029,14 @@ export const IncidentDetailPage: React.FC = () => {
               </button>
             </div>
 
-            <div className="space-y-3 text-xs">
+            <div className="space-y-3 font-body">
               <div>
-                <label className="font-bold text-slate-700 block mb-1">Operational Description</label>
+                <label className="font-semibold text-slate-700 block mb-1 text-xs uppercase tracking-wider">Operational Description</label>
                 <textarea
                   rows={4}
                   value={tempDescription}
                   onChange={(e) => setTempDescription(e.target.value)}
-                  className="w-full p-2.5 rounded-xl border border-[#E1EEF9] bg-[#F8FBFE] text-slate-800 focus:outline-none focus:border-[#1E5FBF]"
+                  className="w-full p-3 rounded-xl border border-[#E1EEF9] bg-[#F8FBFE] text-slate-800 text-sm leading-relaxed font-body focus:outline-none focus:border-[#1E5FBF]"
                 />
               </div>
 
@@ -2157,10 +2183,12 @@ export const IncidentDetailPage: React.FC = () => {
                 </div>
               </div>
 
-              <div className="p-3 rounded-xl bg-[#F8FBFE] border border-[#E1EEF9] text-slate-600 leading-relaxed">
-                <div className="font-bold text-[#0B2545] mb-1">Intelligence Assessment:</div>
-                {selectedCandidate.evidence?.notes ||
-                  "Kinematic analysis shows vessel speed anomaly within the probable discharge ellipse during darkness."}
+              <div className="p-3.5 rounded-xl bg-[#F8FBFE] border border-[#E1EEF9] text-sm text-slate-700 leading-relaxed font-body">
+                <div className="font-bold text-[#0B2545] mb-1 text-xs uppercase tracking-wide">Intelligence Assessment:</div>
+                <p className="body-description text-sm text-slate-700 leading-relaxed">
+                  {selectedCandidate.evidence?.notes ||
+                    "Kinematic analysis shows vessel speed anomaly within the probable discharge ellipse during darkness."}
+                </p>
               </div>
             </div>
 
@@ -2252,32 +2280,32 @@ export const IncidentDetailPage: React.FC = () => {
               </button>
             </div>
 
-            <div className="space-y-3 text-xs">
-              <div className="p-3 rounded-xl bg-[#F8FBFE] border border-[#E1EEF9]">
-                <div className="font-bold text-[#0B2545] mb-1">Recommended Mission Profile:</div>
-                <p className="text-slate-600 leading-relaxed">
+            <div className="space-y-3 font-body">
+              <div className="p-3.5 rounded-xl bg-[#F8FBFE] border border-[#E1EEF9]">
+                <div className="font-bold text-[#0B2545] mb-1 text-xs uppercase tracking-wide">Recommended Mission Profile:</div>
+                <p className="body-description text-sm sm:text-[14.5px] text-slate-700 leading-relaxed font-body">
                   {INCIDENT_DATA.responsePlan.recommendation}
                 </p>
               </div>
 
               <div>
-                <div className="font-bold text-slate-700 mb-1">Assigned Response Assets:</div>
+                <div className="font-semibold text-slate-700 mb-1 text-xs uppercase tracking-wider">Assigned Response Assets:</div>
                 <div className="grid grid-cols-3 gap-2 font-mono">
                   {INCIDENT_DATA.responsePlan.alternateAssets.map((asset, i) => (
                     <div key={i} className="p-2 rounded-xl bg-[#F8FBFE] border border-[#E1EEF9] text-center">
-                      <div className="font-bold text-[#0B2545] text-[10px] font-sans">{asset.name}</div>
-                      <div className="text-[9px] text-slate-500">{asset.type}</div>
-                      <div className="text-[10px] text-emerald-700 font-bold mt-1">ETA: {asset.eta}</div>
+                      <div className="font-bold text-[#0B2545] text-xs font-body">{asset.name}</div>
+                      <div className="text-[10px] text-slate-500 font-body">{asset.type}</div>
+                      <div className="text-[11px] text-emerald-700 font-bold mt-1 font-mono">ETA: {asset.eta}</div>
                     </div>
                   ))}
                 </div>
               </div>
             </div>
 
-            <div className="mt-4 pt-3 border-t border-[#E1EEF9] flex justify-end gap-2">
+            <div className="mt-4 pt-3 border-t border-[#E1EEF9] flex justify-end gap-2 font-body">
               <button
                 onClick={() => setShowResponsePlanModal(false)}
-                className="px-3 py-1.5 rounded-xl border border-[#E1EEF9] text-xs font-semibold text-slate-600 hover:bg-[#F8FBFE]"
+                className="px-3.5 py-1.5 rounded-xl border border-[#E1EEF9] text-xs font-semibold text-slate-600 hover:bg-[#F8FBFE] cursor-pointer"
               >
                 Cancel
               </button>
@@ -2286,7 +2314,7 @@ export const IncidentDetailPage: React.FC = () => {
                   setShowResponsePlanModal(false);
                   triggerToast("Response plan dispatched to ICGS Vikram Ops Room.");
                 }}
-                className="px-4 py-1.5 rounded-xl bg-gradient-to-r from-[#1E5FBF] to-[#2E8FE8] hover:from-[#174EA6] hover:to-[#2275C6] text-xs font-bold text-white shadow-sm"
+                className="px-4 py-1.5 rounded-xl bg-gradient-to-r from-[#1E5FBF] to-[#2E8FE8] hover:from-[#174EA6] hover:to-[#2275C6] text-xs font-semibold text-white shadow-sm cursor-pointer"
               >
                 Dispatch Command Plan
               </button>
@@ -2297,22 +2325,22 @@ export const IncidentDetailPage: React.FC = () => {
 
       {/* Origin Analysis Modal */}
       {showOriginModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn font-body">
           <div className="w-full max-w-lg bg-white border border-[#E1EEF9] rounded-2xl shadow-2xl p-5 text-slate-800">
             <div className="flex items-center justify-between pb-2 border-b border-[#E1EEF9] mb-3">
-              <div className="text-sm font-bold text-[#0B2545] flex items-center gap-2">
+              <div className="text-sm font-bold text-[#0B2545] flex items-center gap-2 font-display">
                 <Target className="w-4 h-4 text-amber-500" />
                 <span>Full Probable Origin Analysis</span>
               </div>
-              <button onClick={() => setShowOriginModal(false)}>
+              <button onClick={() => setShowOriginModal(false)} className="cursor-pointer">
                 <X className="w-4 h-4 text-slate-400 hover:text-slate-700" />
               </button>
             </div>
 
-            <div className="space-y-3 text-xs text-slate-600">
-              <div className="p-3 rounded-xl bg-[#F8FBFE] border border-[#E1EEF9]">
-                <div className="font-bold text-[#0B2545] mb-1">Particle Tracking Methodology</div>
-                <p className="leading-relaxed">
+            <div className="space-y-3 font-body">
+              <div className="p-3.5 rounded-xl bg-[#F8FBFE] border border-[#E1EEF9]">
+                <div className="font-bold text-[#0B2545] mb-1 text-xs uppercase tracking-wide">Particle Tracking Methodology</div>
+                <p className="body-description text-sm sm:text-[14.5px] text-slate-700 leading-relaxed font-body">
                   OpenDrift Lagrangian simulation incorporating HYCOM ocean current vectors and ECMWF 10m wind drag coefficients. Back-tracked 30 hours from detection time to locate initial slick discharge ellipse.
                 </p>
               </div>

@@ -16,7 +16,7 @@ export const FloatingSlickAnalysisPanel: React.FC<FloatingSlickAnalysisPanelProp
     <div className="w-[325px] bg-white/92 backdrop-blur-md border border-slate-200/85 rounded-2xl shadow-xl text-slate-800 p-3 pointer-events-auto transition-all">
       {/* Header */}
       <div className="flex items-center justify-between pb-2 border-b border-slate-100 mb-2.5">
-        <div className="flex items-center gap-1.5 font-bold text-xs text-[#0B2545]">
+        <div className="flex items-center gap-1.5 font-display font-semibold text-xs tracking-wide text-[#0B2545]">
           <Activity className="w-3.5 h-3.5 text-[#185ADB]" />
           <span>Slick Analysis</span>
         </div>
@@ -49,13 +49,13 @@ export const FloatingSlickAnalysisPanel: React.FC<FloatingSlickAnalysisPanelProp
                 {/* Peak height indicator */}
                 <line x1="46" y1="48" x2="46" y2="30" stroke="#F87171" strokeWidth="1.5" strokeDasharray="1 1" />
                 <circle cx="46" cy="30" r="1.5" fill="#FCA5A5" />
-                <text x="50" y="32" fill="#FCA5A5" fontSize="6" fontFamily="monospace">1.2mm</text>
+                <text x="50" y="32" fill="#FCA5A5" fontSize="6" fontFamily="var(--font-mono)">1.2mm</text>
               </svg>
             ) : (
               <svg className="w-full h-full" viewBox="0 0 100 80">
                 {/* Cross-section water line */}
                 <line x1="10" y1="42" x2="90" y2="42" stroke="#38BDF8" strokeWidth="1" />
-                <text x="12" y="38" fill="#38BDF8" fontSize="6">Sea Surface</text>
+                <text x="12" y="38" fill="#38BDF8" fontSize="6" fontFamily="var(--font-body)">Sea Surface</text>
                 
                 {/* Emulsion profile */}
                 <path d="M 20 42 Q 35 34, 50 33 Q 65 34, 80 42 Q 65 48, 50 49 Q 35 48, 20 42 Z" fill="#DC2626" opacity="0.85" />
@@ -70,13 +70,13 @@ export const FloatingSlickAnalysisPanel: React.FC<FloatingSlickAnalysisPanelProp
           </div>
 
           {/* Toggle Button */}
-          <div className="flex p-0.5 mt-1.5 w-full bg-slate-100 rounded-lg border border-slate-200 text-[9px] font-semibold">
+          <div className="flex p-0.5 mt-1.5 w-full bg-slate-100 rounded-lg border border-slate-200 text-[10px] font-body font-semibold">
             <button
               type="button"
               onClick={() => setViewMode("3D View")}
               className={`flex-1 py-0.5 rounded-md text-center transition-all cursor-pointer ${
                 viewMode === "3D View"
-                  ? "bg-[#185ADB] text-white shadow-2xs font-bold"
+                  ? "bg-[#185ADB] text-white shadow-2xs font-semibold"
                   : "text-slate-600 hover:text-slate-900"
               }`}
             >
@@ -87,7 +87,7 @@ export const FloatingSlickAnalysisPanel: React.FC<FloatingSlickAnalysisPanelProp
               onClick={() => setViewMode("Cross-section")}
               className={`flex-1 py-0.5 rounded-md text-center transition-all cursor-pointer ${
                 viewMode === "Cross-section"
-                  ? "bg-[#185ADB] text-white shadow-2xs font-bold"
+                  ? "bg-[#185ADB] text-white shadow-2xs font-semibold"
                   : "text-slate-600 hover:text-slate-900"
               }`}
             >
@@ -97,40 +97,40 @@ export const FloatingSlickAnalysisPanel: React.FC<FloatingSlickAnalysisPanelProp
         </div>
 
         {/* Right Side: Morphometry Stats List */}
-        <div className="flex-1 space-y-1 text-[11px]">
+        <div className="flex-1 space-y-1 text-[12px] font-body">
           <div className="flex justify-between items-center py-0.5 border-b border-slate-100">
-            <span className="text-slate-500 text-[10px]">Area</span>
-            <span className="font-mono font-bold text-[#0B2545]">276.04 km²</span>
+            <span className="text-slate-500 text-[11px]">Area</span>
+            <span className="font-mono font-semibold text-[#0B2545] text-[12px]">276.04 km²</span>
           </div>
 
           <div className="flex justify-between items-center py-0.5 border-b border-slate-100">
-            <span className="text-slate-500 text-[10px]">Perimeter</span>
-            <span className="font-mono text-slate-700">312.5 km</span>
+            <span className="text-slate-500 text-[11px]">Perimeter</span>
+            <span className="font-mono text-slate-700 text-[12px]">312.5 km</span>
           </div>
 
           <div className="flex justify-between items-center py-0.5 border-b border-slate-100">
-            <span className="text-slate-500 text-[10px]">Length (major)</span>
-            <span className="font-mono text-slate-700">31.2 km</span>
+            <span className="text-slate-500 text-[11px]">Length (major)</span>
+            <span className="font-mono text-slate-700 text-[12px]">31.2 km</span>
           </div>
 
           <div className="flex justify-between items-center py-0.5 border-b border-slate-100">
-            <span className="text-slate-500 text-[10px]">Width (minor)</span>
-            <span className="font-mono text-slate-700">12.8 km</span>
+            <span className="text-slate-500 text-[11px]">Width (minor)</span>
+            <span className="font-mono text-slate-700 text-[12px]">12.8 km</span>
           </div>
 
           <div className="flex justify-between items-center py-0.5 border-b border-slate-100">
-            <span className="text-slate-500 text-[10px]">Orientation</span>
-            <span className="font-mono text-slate-700">24.6° (NE-SW)</span>
+            <span className="text-slate-500 text-[11px]">Orientation</span>
+            <span className="font-mono text-slate-700 text-[12px]">24.6° (NE-SW)</span>
           </div>
 
           <div className="flex justify-between items-center py-0.5 border-b border-slate-100">
-            <span className="text-slate-500 text-[10px]">Thickness (est.)</span>
-            <span className="font-mono text-amber-700 font-semibold">0.1 – 1.2 mm</span>
+            <span className="text-slate-500 text-[11px]">Thickness (est.)</span>
+            <span className="font-mono text-amber-700 font-semibold text-[12px]">0.1 – 1.2 mm</span>
           </div>
 
           <div className="flex justify-between items-center py-0.5">
-            <span className="text-slate-500 text-[10px]">Volume (est.)</span>
-            <span className="font-mono font-bold text-rose-600">280 – 1,200 m³</span>
+            <span className="text-slate-500 text-[11px]">Volume (est.)</span>
+            <span className="font-mono font-semibold text-rose-600 text-[12px]">280 – 1,200 m³</span>
           </div>
         </div>
       </div>

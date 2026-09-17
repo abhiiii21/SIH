@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import sahayyaApi from "../services/api";
+import sahayyaApi, { getAvatarUrl } from "../services/api";
+import { useAuth } from "../context/AuthContext";
 import {
   User,
   Bell,
@@ -32,6 +33,9 @@ import {
   RefreshCw,
   Key,
   FileText,
+  Trash2,
+  Camera,
+  Loader2,
 } from "lucide-react";
 import { ReportGenerationModal } from "../components/ReportGenerationModal";
 
@@ -45,6 +49,8 @@ type SettingsTab =
 
 export const SettingsPage: React.FC = () => {
   const navigate = useNavigate();
+  const { user, updateUser } = useAuth();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Sidebar & Top Nav
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -53,10 +59,14 @@ export const SettingsPage: React.FC = () => {
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   // Profile Form State
-  const [profileName, setProfileName] = useState("Commander S. Kumar");
-  const [profileEmail, setProfileEmail] = useState("s.kumar@indiancoastguard.gov.in");
-  const [profileOrg, setProfileOrg] = useState("Indian Coast Guard (West HQ)");
-  const [profileRole, setProfileRole] = useState("Senior Maritime Operations Officer");
+  const [profileName, setProfileName] = useState(user?.name || "Commander S. Kumar");
+  const [profileEmail, setProfileEmail] = useState(user?.email || "s.kumar@indiancoastguard.gov.in");
+  const [profileOrg, setProfileOrg] = useState(user?.organization || "Indian Coast Guard (West HQ)");
+  const [profileRole, setProfileRole] = useState(user?.role || "Senior Maritime Operations Officer");
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(user?.avatar_url || null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
 
   // Notifications State (Stage 19)
   const [channels, setChannels] = useState({
@@ -106,8 +116,35 @@ export const SettingsPage: React.FC = () => {
   const [showApiKey, setShowApiKey] = useState(false);
   const [showGoogleKey, setShowGoogleKey] = useState(false);
 
-  // Fetch initial AI status on mount
+  // Helper for avatar initials
+  const getInitials = (name: string) => {
+    if (!name) return "SK";
+    const parts = name.trim().split(" ");
+    if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  };
+
+  // Fetch initial profile & AI status on mount
   useEffect(() => {
+    // Fetch officer profile from backend
+    sahayyaApi.settings.getProfile()
+      .then((profile) => {
+        if (profile) {
+          if (profile.name) setProfileName(profile.name);
+          if (profile.email) setProfileEmail(profile.email);
+          if (profile.organization) setProfileOrg(profile.organization);
+          if (profile.role) setProfileRole(profile.role);
+          if (profile.avatar_url) {
+            setAvatarUrl(profile.avatar_url);
+            updateUser({ avatar_url: profile.avatar_url, name: profile.name, organization: profile.organization, role: profile.role });
+          }
+        }
+      })
+      .catch((err) => {
+        console.warn("Could not load backend officer profile:", err);
+      });
+
+    // Fetch AI status
     sahayyaApi.ai.getStatus()
       .then((st) => {
         setOllamaStatus(st);
@@ -163,9 +200,110 @@ export const SettingsPage: React.FC = () => {
     }, 3500);
   };
 
-  const handleSaveProfile = (e: React.FormEvent) => {
+  // Change Photo File Picker Click
+  const handlePhotoChangeClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  // When user selects a file from file explorer
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate type
+    const validTypes = ["image/png", "image/jpeg", "image/jpg", "image/webp", "image/gif"];
+    if (!validTypes.includes(file.type) && !file.type.startsWith("image/")) {
+      triggerToast("Invalid format. Please select a PNG, JPG, JPEG, or WebP image.");
+      return;
+    }
+
+    // Validate size (5MB max)
+    if (file.size > 5 * 1024 * 1024) {
+      triggerToast("Photo exceeds 5MB limit. Please choose a smaller photo.");
+      return;
+    }
+
+    // Set instant local visual preview immediately
+    const objectUrl = URL.createObjectURL(file);
+    setPreviewUrl(objectUrl);
+    setIsUploadingAvatar(true);
+
+    try {
+      const res = await sahayyaApi.settings.uploadAvatar(file);
+      if (res?.avatar_url) {
+        setAvatarUrl(res.avatar_url);
+        updateUser({
+          avatar_url: res.avatar_url,
+          name: profileName,
+          organization: profileOrg,
+          role: profileRole,
+        });
+        triggerToast("Profile photo uploaded and updated successfully!");
+      }
+    } catch (err: any) {
+      console.error("Avatar upload failed:", err);
+      triggerToast(`Photo selected. ${err?.response?.data?.detail || "Loaded in session preview."}`);
+      updateUser({
+        avatar_url: objectUrl,
+        name: profileName,
+      });
+    } finally {
+      setIsUploadingAvatar(false);
+      // Reset input value so same file can be picked again if desired
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  };
+
+  // Remove Photo Handler
+  const handleRemovePhoto = async () => {
+    setIsUploadingAvatar(true);
+    try {
+      await sahayyaApi.settings.deleteAvatar();
+    } catch (err) {
+      console.warn("Delete avatar API notice:", err);
+    } finally {
+      setAvatarUrl(null);
+      setPreviewUrl(null);
+      updateUser({ avatar_url: null });
+      setIsUploadingAvatar(false);
+      triggerToast("Profile photo removed. Restored standard monogram.");
+    }
+  };
+
+  // Save Profile Changes
+  const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
-    triggerToast("Profile & agency credentials updated successfully.");
+    setIsSavingProfile(true);
+    try {
+      await sahayyaApi.settings.updateProfile({
+        name: profileName,
+        email: profileEmail,
+        organization: profileOrg,
+        role: profileRole,
+        avatar_url: avatarUrl,
+      });
+      updateUser({
+        name: profileName,
+        email: profileEmail,
+        organization: profileOrg,
+        role: profileRole,
+        avatar_url: avatarUrl,
+      });
+      triggerToast("Profile & agency credentials updated successfully.");
+    } catch (err: any) {
+      updateUser({
+        name: profileName,
+        email: profileEmail,
+        organization: profileOrg,
+        role: profileRole,
+        avatar_url: avatarUrl,
+      });
+      triggerToast("Profile saved to active session.");
+    } finally {
+      setIsSavingProfile(false);
+    }
   };
 
   const handleInviteUser = (e: React.FormEvent) => {
@@ -203,7 +341,7 @@ export const SettingsPage: React.FC = () => {
       {/* ===================================================================== */}
       {/* TOP HEADER BAR                                                        */}
       {/* ===================================================================== */}
-      <header className="h-16 bg-white/95 backdrop-blur-md border-b border-[#E1EEF9] z-40 flex items-center justify-between px-4 sm:px-6 shadow-xs shrink-0">
+      <header className="h-16 bg-white/95 backdrop-blur-md border-b border-[#E1EEF9] z-40 flex items-center justify-between px-4 sm:px-6 shadow-xs shrink-0 antialiased">
         <div className="flex items-center gap-3">
           <button
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -219,24 +357,42 @@ export const SettingsPage: React.FC = () => {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-black text-[#0B2545] text-base tracking-tight leading-none">
+                <span className="font-display font-bold text-[#0B2545] text-base tracking-[0.14em] leading-none">
                   SAHAYYA
                 </span>
-                <span className="text-[10px] font-bold px-1.5 py-0.2 bg-sky-100 text-[#1E5FBF] rounded-sm uppercase tracking-wider">
+                <span className="badge-text px-1.5 py-0.2 bg-sky-100 text-[#1E5FBF] rounded-sm uppercase tracking-wider font-body">
                   Config
                 </span>
               </div>
-              <div className="text-[10px] text-slate-500 font-medium leading-tight">
+              <div className="micro-text text-slate-500 font-body leading-tight">
                 System Administration & Telemetry Configurations
               </div>
             </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 font-body">
+          <div className="flex items-center gap-2 px-3 py-1.5 bg-sky-50 rounded-xl border border-sky-100">
+            <div className="w-7 h-7 rounded-lg overflow-hidden bg-[#0B2545] text-white flex items-center justify-center text-[10px] font-bold shadow-xs shrink-0">
+              {(previewUrl || avatarUrl) ? (
+                <img
+                  src={previewUrl || getAvatarUrl(avatarUrl)}
+                  alt={profileName}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                getInitials(profileName)
+              )}
+            </div>
+            <div className="hidden sm:block text-left leading-none">
+              <div className="text-[11px] font-bold text-[#0B2545]">{profileName}</div>
+              <div className="text-[9px] text-slate-500">{profileRole}</div>
+            </div>
+          </div>
+
           <button
             onClick={() => navigate("/dashboard")}
-            className="text-xs font-semibold text-[#1E5FBF] hover:underline cursor-pointer"
+            className="btn-text text-xs text-[#1E5FBF] hover:underline cursor-pointer"
           >
             &larr; Back to Dashboard
           </button>
@@ -246,7 +402,7 @@ export const SettingsPage: React.FC = () => {
       {/* ===================================================================== */}
       {/* MAIN CONTAINER: SIDEBAR + SETTINGS WORKSPACE                          */}
       {/* ===================================================================== */}
-      <div className="flex-1 min-h-0 flex w-full overflow-hidden relative">
+      <div className="flex-1 min-h-0 flex w-full overflow-hidden relative antialiased">
         {/* Left Nav Sidebar */}
         <aside
           className={`h-full bg-[#0B2545] transition-all duration-300 flex flex-col justify-between py-4 z-30 shrink-0 overflow-y-auto ${
@@ -255,13 +411,13 @@ export const SettingsPage: React.FC = () => {
         >
           <div className="flex flex-col items-center gap-2.5 w-full px-2">
             {[
-              { id: "Home", icon: Home, label: "Home", path: "/dashboard" },
+              { id: "Dashboard", icon: Home, label: "Home", path: "/dashboard" },
               { id: "Map", icon: MapIcon, label: "Map", path: "/map" },
               { id: "Incidents", icon: Activity, label: "Incidents", path: "/incidents/IN-MH-2026" },
               { id: "Vessels", icon: Ship, label: "Vessels", path: "/vessels" },
               { id: "Analysis", icon: BarChart3, label: "Analysis", path: "/analysis" },
               { id: "Settings", icon: SettingsIcon, label: "Settings", path: "/settings" },
-              { id: "Help", icon: HelpCircle, label: "Help" },
+              { id: "Help", icon: HelpCircle, label: "Help", path: "" },
             ].map((item) => {
               const Icon = item.icon;
               const isActive = activeNav === item.id;
@@ -285,13 +441,13 @@ export const SettingsPage: React.FC = () => {
                   title={item.label}
                 >
                   <Icon className="w-5 h-5 stroke-[1.8]" />
-                  <span className="text-[9px] font-semibold tracking-tight">{item.label}</span>
+                  <span className="text-[9px] font-medium tracking-tight font-body">{item.label}</span>
                 </button>
               );
             })}
           </div>
 
-          <div className="px-1 text-center">
+          <div className="px-1 text-center font-body">
             <div className="w-6 h-6 mx-auto mb-1 text-sky-400 opacity-60">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M2 12c2.5-3 5-3 7.5 0s5 3 7.5 0 5-3 7-0.5" />
@@ -308,10 +464,10 @@ export const SettingsPage: React.FC = () => {
           <div className="max-w-5xl mx-auto space-y-6 pb-20">
             {/* Header */}
             <div>
-              <h1 className="text-2xl sm:text-3xl font-black text-[#0B2545] tracking-tight">
-                Settings & System Configuration
+              <h1 className="heading-page text-[#0B2545]">
+                Settings &amp; System Configuration
               </h1>
-              <p className="text-xs text-slate-500 mt-1">
+              <p className="body-text text-xs text-slate-500 mt-1 font-body">
                 Configure organizational identity, multi-stakeholder alert pipelines, satellite sensor streams, and user access.
               </p>
             </div>
@@ -319,7 +475,7 @@ export const SettingsPage: React.FC = () => {
             {/* Main Settings Card with Left Vertical Nav */}
             <div className="bg-white/90 backdrop-blur-md rounded-2xl border border-[#E1EEF9] shadow-xl overflow-hidden flex flex-col md:flex-row min-h-[580px]">
               {/* Internal Sub-nav Vertical Tabs */}
-              <div className="w-full md:w-64 border-b md:border-b-0 md:border-r border-[#E1EEF9] bg-[#F8FBFE] p-3 sm:p-4 shrink-0 flex flex-row md:flex-col gap-1.5 overflow-x-auto md:overflow-x-visible">
+              <div className="w-full md:w-64 border-b md:border-b-0 md:border-r border-[#E1EEF9] bg-[#F8FBFE] p-3 sm:p-4 shrink-0 flex flex-row md:flex-col gap-1.5 overflow-x-auto md:overflow-x-visible font-body">
                 {[
                   { id: "profile", label: "Profile & Organization", icon: User },
                   { id: "notifications", label: "Notifications & Alerts", icon: Bell, badge: "Stage 19" },
@@ -334,7 +490,7 @@ export const SettingsPage: React.FC = () => {
                     <button
                       key={tab.id}
                       onClick={() => setActiveTab(tab.id as SettingsTab)}
-                      className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
+                      className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs btn-text transition-all cursor-pointer whitespace-nowrap ${
                         isSel
                           ? "bg-gradient-to-r from-[#1E5FBF] to-[#2E8FE8] text-white shadow-sm"
                           : "text-slate-600 hover:bg-slate-100 hover:text-[#0B2545]"
@@ -346,7 +502,7 @@ export const SettingsPage: React.FC = () => {
                       </div>
                       {tab.badge && (
                         <span
-                          className={`text-[9px] px-1.5 py-0.2 rounded-md ${
+                          className={`badge-text px-1.5 py-0.2 rounded-md ${
                             isSel ? "bg-white/20 text-white" : "bg-sky-100 text-[#1E5FBF]"
                           }`}
                         >
@@ -359,61 +515,138 @@ export const SettingsPage: React.FC = () => {
               </div>
 
               {/* Tab Panels */}
-              <div className="flex-1 p-6 sm:p-8 overflow-y-auto">
+              <div className="flex-1 p-6 sm:p-8 overflow-y-auto font-body">
                 {/* TAB 1: Profile & Organization */}
                 {activeTab === "profile" && (
                   <form onSubmit={handleSaveProfile} className="space-y-6 max-w-xl animate-fadeIn">
+                    {/* Hidden File Input for system photo picker */}
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      id="officer-photo-file-picker"
+                      accept="image/png,image/jpeg,image/jpg,image/webp,image/gif"
+                      onChange={handleFileChange}
+                      className="hidden"
+                    />
+
                     <div>
-                      <h2 className="text-base font-bold text-[#0B2545]">Officer Profile & Agency</h2>
-                      <p className="text-xs text-slate-500 mt-0.5">
-                        Official designation for digital signing of maritime forensic dossiers.
+                      <h2 className="heading-secondary text-[#0B2545]">Officer Profile &amp; Agency</h2>
+                      <p className="body-text text-xs text-slate-500 mt-0.5 font-body">
+                        Official designation and digital avatar for maritime forensic dossiers and incident commanding.
                       </p>
                     </div>
 
-                    <div className="flex items-center gap-4">
-                      <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#0B2545] to-[#1E5FBF] text-white font-black text-xl flex items-center justify-center shadow-md">
-                        SK
-                      </div>
-                      <div>
-                        <button
-                          type="button"
-                          onClick={() => triggerToast("Avatar file selector opened")}
-                          className="px-3 py-1.5 rounded-xl border border-[#E1EEF9] bg-[#F8FBFE] hover:bg-slate-50 text-xs font-semibold text-slate-700 flex items-center gap-1.5 cursor-pointer"
+                    {/* Photo Avatar Selector Section */}
+                    <div className="p-4 rounded-2xl border border-sky-100 bg-gradient-to-r from-sky-50/60 via-white to-blue-50/40 shadow-xs flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                      {/* Avatar Image / Monogram Container */}
+                      <div className="relative group shrink-0">
+                        <div className="w-20 h-20 rounded-2xl overflow-hidden shadow-md border-2 border-sky-300 ring-4 ring-sky-100 flex items-center justify-center bg-gradient-to-br from-[#0B2545] to-[#1E5FBF] text-white">
+                          {(previewUrl || avatarUrl) ? (
+                            <img
+                              src={previewUrl || getAvatarUrl(avatarUrl)}
+                              alt={profileName}
+                              className="w-full h-full object-cover"
+                              onError={() => {
+                                setPreviewUrl(null);
+                                setAvatarUrl(null);
+                              }}
+                            />
+                          ) : (
+                            <span className="font-display font-black text-2xl tracking-wider text-white">
+                              {getInitials(profileName)}
+                            </span>
+                          )}
+
+                          {/* Hover Overlay Button */}
+                          <button
+                            type="button"
+                            onClick={handlePhotoChangeClick}
+                            disabled={isUploadingAvatar}
+                            className="absolute inset-0 bg-black/45 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white cursor-pointer rounded-2xl"
+                            title="Click to select new photo from system"
+                          >
+                            <Camera className="w-5 h-5 mb-0.5" />
+                            <span className="text-[9px] font-semibold">Change</span>
+                          </button>
+
+                          {/* Upload Spinner */}
+                          {isUploadingAvatar && (
+                            <div className="absolute inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center text-white rounded-2xl">
+                              <Loader2 className="w-6 h-6 animate-spin text-sky-300" />
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Verified Badge */}
+                        <div
+                          className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white shadow-xs flex items-center justify-center"
+                          title="Verified Maritime Officer Account"
                         >
-                          <Upload className="w-3.5 h-3.5 text-slate-500" />
-                          <span>Change Photo</span>
-                        </button>
-                        <div className="text-[10px] text-slate-400 mt-1 font-mono">PNG or JPG up to 2MB</div>
+                          <Check className="w-2.5 h-2.5 text-white stroke-[3]" />
+                        </div>
+                      </div>
+
+                      {/* Photo Actions & Explanations */}
+                      <div className="space-y-2 flex-1">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={handlePhotoChangeClick}
+                            disabled={isUploadingAvatar}
+                            className="px-3.5 py-1.5 rounded-xl border border-sky-300 bg-white hover:bg-sky-50 text-[#1E5FBF] btn-text flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer text-xs font-semibold"
+                          >
+                            <Upload className="w-3.5 h-3.5 text-[#1E5FBF]" />
+                            <span>{isUploadingAvatar ? "Processing..." : "Change Photo"}</span>
+                          </button>
+
+                          {(previewUrl || avatarUrl) && (
+                            <button
+                              type="button"
+                              onClick={handleRemovePhoto}
+                              disabled={isUploadingAvatar}
+                              className="px-3 py-1.5 rounded-xl border border-rose-200 bg-white hover:bg-rose-50 text-rose-600 btn-text flex items-center gap-1 shadow-xs transition-colors cursor-pointer text-xs font-semibold"
+                              title="Remove custom photo and reset to initials"
+                            >
+                              <Trash2 className="w-3.5 h-3.5 text-rose-500" />
+                              <span>Remove</span>
+                            </button>
+                          )}
+                        </div>
+
+                        <div className="text-[11px] text-slate-500 font-body flex items-center gap-1.5">
+                          <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                          <span>PNG, JPG, JPEG, or WebP up to 5MB</span>
+                        </div>
                       </div>
                     </div>
 
                     <div className="space-y-4 text-xs">
                       <div>
-                        <label className="block font-bold text-slate-700 mb-1">Full Name</label>
+                        <label className="input-label block text-slate-700 mb-1">Full Name</label>
                         <input
                           type="text"
                           value={profileName}
                           onChange={(e) => setProfileName(e.target.value)}
-                          className="w-full bg-[#F8FBFE] border border-[#E1EEF9] rounded-xl p-2.5 text-xs text-[#0B2545] font-semibold focus:outline-none focus:ring-2 focus:ring-[#1E5FBF]/30"
+                          className="w-full bg-[#F8FBFE] border border-[#E1EEF9] rounded-xl p-2.5 text-xs text-[#0B2545] font-semibold focus:outline-none focus:ring-2 focus:ring-[#1E5FBF]/30 font-body input-text"
                         />
                       </div>
 
                       <div>
-                        <label className="block font-bold text-slate-700 mb-1">Official Gov Email</label>
+                        <label className="input-label block text-slate-700 mb-1">Official Gov Email</label>
                         <input
                           type="email"
                           value={profileEmail}
                           onChange={(e) => setProfileEmail(e.target.value)}
-                          className="w-full bg-[#F8FBFE] border border-[#E1EEF9] rounded-xl p-2.5 text-xs text-[#0B2545] font-semibold focus:outline-none focus:ring-2 focus:ring-[#1E5FBF]/30"
+                          className="w-full bg-[#F8FBFE] border border-[#E1EEF9] rounded-xl p-2.5 text-xs text-[#0B2545] font-semibold focus:outline-none focus:ring-2 focus:ring-[#1E5FBF]/30 font-body input-text"
                         />
                       </div>
 
                       <div>
-                        <label className="block font-bold text-slate-700 mb-1">Organization / Department</label>
+                        <label className="input-label block text-slate-700 mb-1">Organization / Department</label>
                         <select
                           value={profileOrg}
                           onChange={(e) => setProfileOrg(e.target.value)}
-                          className="w-full bg-[#F8FBFE] border border-[#E1EEF9] rounded-xl p-2.5 text-xs text-[#0B2545] font-semibold"
+                          className="w-full bg-[#F8FBFE] border border-[#E1EEF9] rounded-xl p-2.5 text-xs text-[#0B2545] font-semibold font-body input-text"
                         >
                           <option value="Indian Coast Guard (West HQ)">Indian Coast Guard (West HQ)</option>
                           <option value="Port Authority / VTS Directorate">Port Authority / VTS Directorate</option>
@@ -425,12 +658,12 @@ export const SettingsPage: React.FC = () => {
                       </div>
 
                       <div>
-                        <label className="block font-bold text-slate-700 mb-1">Operational Role</label>
+                        <label className="input-label block text-slate-700 mb-1">Operational Role</label>
                         <input
                           type="text"
                           value={profileRole}
                           onChange={(e) => setProfileRole(e.target.value)}
-                          className="w-full bg-[#F8FBFE] border border-[#E1EEF9] rounded-xl p-2.5 text-xs text-[#0B2545] font-semibold focus:outline-none focus:ring-2 focus:ring-[#1E5FBF]/30"
+                          className="w-full bg-[#F8FBFE] border border-[#E1EEF9] rounded-xl p-2.5 text-xs text-[#0B2545] font-semibold focus:outline-none focus:ring-2 focus:ring-[#1E5FBF]/30 font-body input-text"
                         />
                       </div>
                     </div>
@@ -438,10 +671,15 @@ export const SettingsPage: React.FC = () => {
                     <div className="pt-2">
                       <button
                         type="submit"
-                        className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#1E5FBF] to-[#2E8FE8] hover:from-[#174EA6] hover:to-[#2275C6] text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
+                        disabled={isSavingProfile}
+                        className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#1E5FBF] to-[#2E8FE8] hover:from-[#174EA6] hover:to-[#2275C6] text-white btn-text flex items-center gap-1.5 shadow-sm transition-all cursor-pointer font-body disabled:opacity-50"
                       >
-                        <Save className="w-4 h-4" />
-                        <span>Save Profile Changes</span>
+                        {isSavingProfile ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <Save className="w-4 h-4" />
+                        )}
+                        <span>{isSavingProfile ? "Saving..." : "Save Profile Changes"}</span>
                       </button>
                     </div>
                   </form>
@@ -451,15 +689,15 @@ export const SettingsPage: React.FC = () => {
                 {activeTab === "notifications" && (
                   <div className="space-y-6 max-w-xl animate-fadeIn">
                     <div>
-                      <h2 className="text-base font-bold text-[#0B2545]">Automated Alert Pipeline</h2>
-                      <p className="text-xs text-slate-500 mt-0.5">
+                      <h2 className="heading-secondary text-[#0B2545]">Automated Alert Pipeline</h2>
+                      <p className="body-text text-xs text-slate-500 mt-0.5 font-body">
                         Multi-channel notification triggers for verified hydrocarbon discharge and vessel loitering events.
                       </p>
                     </div>
 
                     {/* Alert Channels */}
                     <div className="space-y-3">
-                      <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                      <h3 className="font-display font-semibold text-xs text-slate-700 uppercase tracking-[0.06em]">
                         Active Alert Channels
                       </h3>
                       <div className="grid grid-cols-2 gap-2 text-xs">
@@ -474,8 +712,8 @@ export const SettingsPage: React.FC = () => {
                             className="p-3 rounded-xl border border-[#E1EEF9] bg-[#F8FBFE] flex items-center justify-between"
                           >
                             <div>
-                              <div className="font-bold text-[#0B2545]">{ch.label}</div>
-                              <div className="text-[10px] text-slate-500">{ch.desc}</div>
+                              <div className="font-semibold text-[#0B2545] font-body text-xs">{ch.label}</div>
+                              <div className="micro-text text-slate-500 font-body">{ch.desc}</div>
                             </div>
                             <input
                               type="checkbox"
@@ -492,7 +730,7 @@ export const SettingsPage: React.FC = () => {
 
                     {/* Severity Threshold */}
                     <div className="space-y-2">
-                      <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                      <h3 className="font-display font-semibold text-xs text-slate-700 uppercase tracking-[0.06em]">
                         Minimum Alert Trigger Threshold
                       </h3>
                       <div className="grid grid-cols-4 gap-2">
@@ -503,7 +741,7 @@ export const SettingsPage: React.FC = () => {
                               key={sev}
                               type="button"
                               onClick={() => setSeverityThreshold(sev)}
-                              className={`py-2 px-3 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+                              className={`py-2 px-3 rounded-xl border btn-text transition-all cursor-pointer font-body ${
                                 isSel
                                   ? "bg-[#0B2545] text-white border-[#0B2545] shadow-sm"
                                   : "bg-[#F8FBFE] text-slate-600 border-[#E1EEF9] hover:bg-slate-100"
@@ -518,7 +756,7 @@ export const SettingsPage: React.FC = () => {
 
                     {/* Stakeholder Recipient Groups */}
                     <div className="space-y-2">
-                      <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                      <h3 className="font-display font-semibold text-xs text-slate-700 uppercase tracking-[0.06em]">
                         Stakeholder Auto-Alert Groups (Stage 19)
                       </h3>
                       <div className="space-y-2">
@@ -530,11 +768,11 @@ export const SettingsPage: React.FC = () => {
                         ].map((grp) => (
                           <label
                             key={grp.key}
-                            className="p-2.5 rounded-xl border border-[#E1EEF9] bg-white flex items-center justify-between cursor-pointer hover:bg-slate-50 text-xs"
+                            className="p-2.5 rounded-xl border border-[#E1EEF9] bg-white flex items-center justify-between cursor-pointer hover:bg-slate-50 text-xs font-body"
                           >
                             <div>
-                              <div className="font-bold text-[#0B2545]">{grp.label}</div>
-                              <div className="text-[10px] text-slate-500 font-mono">{grp.count}</div>
+                              <div className="font-semibold text-[#0B2545] font-body text-xs">{grp.label}</div>
+                              <div className="data-mono-sm text-slate-500 font-mono">{grp.count}</div>
                             </div>
                             <input
                               type="checkbox"
@@ -555,7 +793,7 @@ export const SettingsPage: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => triggerToast("Alert notification rules saved.")}
-                      className="px-5 py-2 rounded-xl bg-gradient-to-r from-[#1E5FBF] to-[#2E8FE8] text-white text-xs font-bold flex items-center gap-1.5 shadow-sm cursor-pointer"
+                      className="px-5 py-2 rounded-xl bg-gradient-to-r from-[#1E5FBF] to-[#2E8FE8] text-white btn-text flex items-center gap-1.5 shadow-sm cursor-pointer font-body"
                     >
                       <Save className="w-4 h-4" />
                       <span>Update Notification Preferences</span>
@@ -567,14 +805,14 @@ export const SettingsPage: React.FC = () => {
                 {activeTab === "datasources" && (
                   <div className="space-y-6 max-w-2xl animate-fadeIn">
                     <div>
-                      <h2 className="text-base font-bold text-[#0B2545]">Data Sources & Sensor Pipelines</h2>
-                      <p className="text-xs text-slate-500 mt-0.5">
+                      <h2 className="heading-secondary text-[#0B2545]">Data Sources &amp; Sensor Pipelines</h2>
+                      <p className="body-text text-xs text-slate-500 mt-0.5 font-body">
                         Real-time feeds ingestion status and external intelligence connectors.
                       </p>
                     </div>
 
                     {/* Sensor Cards */}
-                    <div className="space-y-2.5">
+                    <div className="space-y-2.5 font-body">
                       {[
                         {
                           name: "Copernicus Sentinel-1 SAR",
@@ -622,13 +860,13 @@ export const SettingsPage: React.FC = () => {
                           className="p-3.5 rounded-xl border border-[#E1EEF9] bg-[#F8FBFE] flex items-center justify-between"
                         >
                           <div>
-                            <div className="font-bold text-xs text-[#0B2545]">{s.name}</div>
-                            <div className="text-[10px] text-slate-500">{s.type}</div>
-                            <div className="text-[9px] text-slate-400 font-mono mt-1">
+                            <div className="font-semibold text-xs text-[#0B2545] font-body">{s.name}</div>
+                            <div className="micro-text text-slate-500 font-body">{s.type}</div>
+                            <div className="data-mono-sm text-slate-400 font-mono mt-1">
                               Last Sync: {s.lastSync} &nbsp;|&nbsp; Latency: {s.latency}
                             </div>
                           </div>
-                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${s.statusColor}`}>
+                          <span className={`badge-text px-2 py-0.5 rounded-full border ${s.statusColor} font-body`}>
                             ● {s.status}
                           </span>
                         </div>
@@ -643,33 +881,33 @@ export const SettingsPage: React.FC = () => {
                             <Sparkles className="w-4 h-4" />
                           </div>
                           <div>
-                            <h3 className="text-xs font-bold text-[#0B2545]">
+                            <h3 className="heading-section text-xs text-[#0B2545]">
                               OceanShield AI Browser Plugin (Stage 3)
                             </h3>
-                            <div className="text-[10px] text-slate-500 font-mono">
+                            <div className="data-mono-sm text-slate-500 font-mono">
                               Chrome / Edge Secure Extension &bull; v1.4.2
                             </div>
                           </div>
                         </div>
 
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">
+                        <span className="badge-text px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 font-body">
                           Active Integration
                         </span>
                       </div>
 
-                      <p className="text-xs text-slate-600 mt-2 leading-relaxed">
+                      <p className="body-text text-xs text-slate-600 mt-2 leading-relaxed font-body">
                         Runs continuously in the background with encrypted WebSockets directly to the Sahayya intelligence server. Provides one-click quick actions: upload local SAR images, paste AIS telemetry links, query the vessel attribution copilot, and download courtroom-ready PDF dossiers without leaving maritime portals.
                       </p>
 
-                      <div className="mt-3 pt-3 border-t border-sky-200/80 flex items-center justify-between">
+                      <div className="mt-3 pt-3 border-t border-sky-200/80 flex items-center justify-between font-body">
                         <div className="flex items-center gap-2">
-                          <span className="text-xs font-bold text-slate-700">Telemetry Sync:</span>
+                          <span className="text-xs font-semibold text-slate-700">Telemetry Sync:</span>
                           <span className="text-xs font-semibold text-emerald-600">Encrypted (TLS 1.3)</span>
                         </div>
 
                         <button
                           onClick={() => triggerToast("OceanShield AI extension package verified.")}
-                          className="px-3 py-1.5 rounded-lg bg-[#0B2545] hover:bg-[#1E5FBF] text-white text-xs font-bold flex items-center gap-1 transition-colors cursor-pointer"
+                          className="px-3 py-1.5 rounded-lg bg-[#0B2545] hover:bg-[#1E5FBF] text-white btn-text flex items-center gap-1 transition-colors cursor-pointer"
                         >
                           <span>Plugin Configuration</span>
                           <ExternalLink className="w-3 h-3" />
@@ -688,10 +926,10 @@ export const SettingsPage: React.FC = () => {
                           <Sparkles className="w-4 h-4" />
                         </div>
                         <div>
-                          <h2 className="text-base font-bold text-[#0B2545]">
+                          <h2 className="heading-secondary text-[#0B2545]">
                             AI Maritime Intelligence &amp; LLM Keys
                           </h2>
-                          <p className="text-xs text-slate-500">
+                          <p className="body-text text-xs text-slate-500 font-body">
                             Configure Google AI (Gemini 3.6 Flash) cloud API key and local/hosted Ollama for the 30 vessels fleet intelligence.
                           </p>
                         </div>
@@ -709,14 +947,14 @@ export const SettingsPage: React.FC = () => {
                           ollamaStatus?.status === "connected" ? "bg-emerald-500 animate-pulse" : "bg-amber-500"
                         }`} />
                         <div>
-                          <div className="text-xs font-bold text-[#0B2545]">
+                          <div className="text-xs font-semibold text-[#0B2545] font-body">
                             {ollamaStatus?.status === "connected"
                               ? ollamaStatus?.provider === "google_gemini"
                                 ? `Connected to Google AI (${ollamaStatus?.model || geminiModel})`
                                 : `Connected to Ollama Engine (${ollamaStatus?.model || ollamaModel})`
                               : "AI Offline — Expert Maritime Heuristic Engine Active"}
                           </div>
-                          <div className="text-[10px] text-slate-500 font-mono mt-0.5">
+                          <div className="data-mono-sm text-slate-500 font-mono mt-0.5">
                             {ollamaStatus?.provider === "google_gemini"
                               ? `Cloud Provider: Google Generative AI (REST) • Active Model: ${geminiModel}`
                               : `Active Endpoint: ${ollamaBaseUrl} • Model: ${ollamaModel}`}
@@ -728,7 +966,7 @@ export const SettingsPage: React.FC = () => {
                         type="button"
                         onClick={handleTestOllama}
                         disabled={isTestingOllama}
-                        className="px-3 py-1.5 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 flex items-center gap-1.5 cursor-pointer shadow-xs disabled:opacity-50"
+                        className="px-3 py-1.5 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 btn-text text-slate-700 flex items-center gap-1.5 cursor-pointer shadow-xs disabled:opacity-50 font-body"
                       >
                         <RefreshCw className={`w-3.5 h-3.5 ${isTestingOllama ? "animate-spin text-purple-600" : ""}`} />
                         <span>Test Ping</span>
@@ -736,28 +974,28 @@ export const SettingsPage: React.FC = () => {
                     </div>
 
                     {/* Form */}
-                    <form onSubmit={handleSaveOllama} className="space-y-4 text-xs">
+                    <form onSubmit={handleSaveOllama} className="space-y-4 text-xs font-body">
                       {/* Section 1: Google AI (Gemini) */}
                       <div className="p-3.5 rounded-xl border border-sky-200 bg-gradient-to-r from-sky-50/70 to-blue-50/40 space-y-3">
                         <div className="flex items-center justify-between">
-                          <span className="font-bold text-[#0B2545] flex items-center gap-1.5">
+                          <span className="font-semibold text-[#0B2545] flex items-center gap-1.5 font-body">
                             <Sparkles className="w-3.5 h-3.5 text-[#1E5FBF]" />
                             <span>Google AI (Gemini Cloud API Key)</span>
                           </span>
-                          <span className="text-[10px] px-2 py-0.5 rounded-md bg-sky-100 text-sky-800 font-bold border border-sky-200">
+                          <span className="badge-text px-2 py-0.5 rounded-md bg-sky-100 text-sky-800 border border-sky-200 font-body">
                             Recommended / Instant Active
                           </span>
                         </div>
 
                         <div>
                           <div className="flex items-center justify-between mb-1">
-                            <label className="font-semibold text-slate-700">
+                            <label className="input-label font-semibold text-slate-700 font-body">
                               Google AI API Key
                             </label>
                             <button
                               type="button"
                               onClick={() => setShowGoogleKey(!showGoogleKey)}
-                              className="text-[10px] text-[#1E5FBF] font-semibold hover:underline cursor-pointer flex items-center gap-1"
+                              className="micro-text text-[#1E5FBF] font-semibold hover:underline cursor-pointer flex items-center gap-1 font-body"
                             >
                               {showGoogleKey ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
                               <span>{showGoogleKey ? "Hide Key" : "Show Key"}</span>
@@ -768,15 +1006,15 @@ export const SettingsPage: React.FC = () => {
                             value={googleApiKey}
                             onChange={(e) => setGoogleApiKey(e.target.value)}
                             placeholder="AQ.Ab8RN6... or AIzaSy..."
-                            className="w-full bg-white border border-[#E1EEF9] rounded-xl p-2.5 text-xs text-[#0B2545] font-mono focus:outline-none focus:border-[#1E5FBF]"
+                            className="w-full bg-white border border-[#E1EEF9] rounded-xl p-2.5 text-xs text-[#0B2545] font-mono focus:outline-none focus:border-[#1E5FBF] data-mono-sm input-text"
                           />
-                          <span className="text-[10px] text-slate-500 mt-1 block">
+                          <span className="micro-text text-slate-500 mt-1 block font-body">
                             Used automatically whenever Ollama is offline or when cloud high-speed reasoning is needed.
                           </span>
                         </div>
 
                         <div>
-                          <label className="block font-semibold text-slate-700 mb-1">
+                          <label className="input-label block font-semibold text-slate-700 mb-1 font-body">
                             Google Gemini Model
                           </label>
                           <input
@@ -784,22 +1022,22 @@ export const SettingsPage: React.FC = () => {
                             value={geminiModel}
                             onChange={(e) => setGeminiModel(e.target.value)}
                             placeholder="gemini-3.5-flash"
-                            className="w-full bg-white border border-[#E1EEF9] rounded-xl p-2.5 text-xs text-[#0B2545] font-mono focus:outline-none focus:border-[#1E5FBF]"
+                            className="w-full bg-white border border-[#E1EEF9] rounded-xl p-2.5 text-xs text-[#0B2545] font-mono focus:outline-none focus:border-[#1E5FBF] data-mono-sm input-text"
                           />
-                          <span className="text-[10px] text-slate-400 mt-0.5 block">
-                            Standard verified model: <code className="font-mono bg-white px-1 py-0.5 rounded border border-slate-200">gemini-3.5-flash</code>
+                          <span className="micro-text text-slate-400 mt-0.5 block font-body">
+                            Standard verified model: <code className="data-mono-sm font-mono bg-white px-1 py-0.5 rounded border border-slate-200">gemini-3.5-flash</code>
                           </span>
                         </div>
                       </div>
 
                       {/* Section 2: Ollama (Local Daemon) */}
                       <div className="p-3.5 rounded-xl border border-[#E1EEF9] bg-[#F8FBFE] space-y-3">
-                        <span className="font-bold text-[#0B2545] block">
+                        <span className="font-semibold text-[#0B2545] block font-body">
                           Ollama Daemon Configuration (Local or Hosted)
                         </span>
 
                         <div>
-                          <label className="block font-semibold text-slate-700 mb-1">
+                          <label className="input-label block font-semibold text-slate-700 mb-1 font-body">
                             Ollama Base URL / Endpoint
                           </label>
                           <input
@@ -807,20 +1045,20 @@ export const SettingsPage: React.FC = () => {
                             value={ollamaBaseUrl}
                             onChange={(e) => setOllamaBaseUrl(e.target.value)}
                             placeholder="http://localhost:11434"
-                            className="w-full bg-white border border-[#E1EEF9] rounded-xl p-2.5 text-xs text-[#0B2545] font-mono focus:outline-none focus:border-[#1E5FBF]"
+                            className="w-full bg-white border border-[#E1EEF9] rounded-xl p-2.5 text-xs text-[#0B2545] font-mono focus:outline-none focus:border-[#1E5FBF] data-mono-sm input-text"
                           />
                         </div>
 
                         <div>
                           <div className="flex items-center justify-between mb-1">
-                            <label className="font-semibold text-slate-700 flex items-center gap-1">
+                            <label className="input-label font-semibold text-slate-700 flex items-center gap-1 font-body">
                               <Key className="w-3.5 h-3.5 text-slate-500" />
                               <span>Ollama Bearer Token (Optional)</span>
                             </label>
                             <button
                               type="button"
                               onClick={() => setShowApiKey(!showApiKey)}
-                              className="text-[10px] text-purple-700 font-semibold hover:underline cursor-pointer flex items-center gap-1"
+                              className="micro-text text-purple-700 font-semibold hover:underline cursor-pointer flex items-center gap-1 font-body"
                             >
                               {showApiKey ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
                               <span>{showApiKey ? "Hide Key" : "Show Key"}</span>
@@ -831,18 +1069,18 @@ export const SettingsPage: React.FC = () => {
                             value={ollamaApiKey}
                             onChange={(e) => setOllamaApiKey(e.target.value)}
                             placeholder="Optional for local localhost:11434"
-                            className="w-full bg-white border border-[#E1EEF9] rounded-xl p-2.5 text-xs text-[#0B2545] font-mono focus:outline-none focus:border-[#1E5FBF]"
+                            className="w-full bg-white border border-[#E1EEF9] rounded-xl p-2.5 text-xs text-[#0B2545] font-mono focus:outline-none focus:border-[#1E5FBF] data-mono-sm input-text"
                           />
                         </div>
 
                         <div>
-                          <label className="block font-semibold text-slate-700 mb-1">
+                          <label className="input-label block font-semibold text-slate-700 mb-1 font-body">
                             Ollama LLM Model
                           </label>
                           <select
                             value={ollamaModel}
                             onChange={(e) => setOllamaModel(e.target.value)}
-                            className="w-full bg-white border border-[#E1EEF9] rounded-xl p-2.5 text-xs text-[#0B2545] font-semibold cursor-pointer"
+                            className="w-full bg-white border border-[#E1EEF9] rounded-xl p-2.5 text-xs text-[#0B2545] font-semibold cursor-pointer font-body input-text"
                           >
                             <option value="gemma3">gemma3 (Recommended Google DeepMind lightweight)</option>
                             <option value="llama3">llama3 / llama3.1 (Meta 8B instruction tuned)</option>
@@ -854,12 +1092,12 @@ export const SettingsPage: React.FC = () => {
                       </div>
 
                       {/* Info Banner */}
-                      <div className="p-3 rounded-xl bg-purple-50/70 border border-purple-200/80 text-[11px] text-purple-900 leading-relaxed">
-                        <span className="font-bold">Automatic Failover Strategy: </span>
+                      <div className="p-3 rounded-xl bg-purple-50/70 border border-purple-200/80 micro-text text-purple-900 leading-relaxed font-body">
+                        <span className="font-semibold">Automatic Failover Strategy: </span>
                         The Sahayya maritime intelligence engine prioritizes local Ollama. If Ollama is offline, it immediately routes all 30 vessels kinematic analysis and chat interrogation through Google AI (Gemini 3.5 Flash). If both are unavailable, the embedded Coast Guard heuristic rules engine produces uninterrupted forensic assessments.
                       </div>
 
-                      <div className="pt-2 flex items-center justify-end gap-3">
+                      <div className="pt-2 flex items-center justify-end gap-3 font-body">
                         <button
                           type="button"
                           onClick={() => {
@@ -870,13 +1108,13 @@ export const SettingsPage: React.FC = () => {
                             setGeminiModel("gemini-3.5-flash");
                             triggerToast("Reset AI settings to system defaults.");
                           }}
-                          className="px-4 py-2 rounded-xl border border-slate-300 text-slate-600 hover:bg-slate-50 text-xs font-bold cursor-pointer"
+                          className="px-4 py-2 rounded-xl border border-slate-300 text-slate-600 hover:bg-slate-50 btn-text cursor-pointer"
                         >
                           Reset Defaults
                         </button>
                         <button
                           type="submit"
-                          className="px-5 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-md shadow-purple-900/20 cursor-pointer"
+                          className="px-5 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white btn-text flex items-center gap-1.5 shadow-md shadow-purple-900/20 cursor-pointer"
                         >
                           <Save className="w-3.5 h-3.5" />
                           <span>Save Configuration</span>
@@ -890,22 +1128,22 @@ export const SettingsPage: React.FC = () => {
                 {activeTab === "accessibility" && (
                   <div className="space-y-6 max-w-xl animate-fadeIn">
                     <div>
-                      <h2 className="text-base font-bold text-[#0B2545]">Language & Accessibility</h2>
-                      <p className="text-xs text-slate-500 mt-0.5">
+                      <h2 className="heading-secondary text-[#0B2545]">Language &amp; Accessibility</h2>
+                      <p className="body-text text-xs text-slate-500 mt-0.5 font-body">
                         Flowchart mandated multilingual support and adaptive accessibility controls.
                       </p>
                     </div>
 
-                    <div className="space-y-4 text-xs">
+                    <div className="space-y-4 text-xs font-body">
                       <div>
-                        <label className="block font-bold text-slate-700 mb-1">Interface Language</label>
+                        <label className="input-label block font-semibold text-slate-700 mb-1 font-body">Interface Language</label>
                         <select
                           value={selectedLanguage}
                           onChange={(e) => {
                             setSelectedLanguage(e.target.value);
                             triggerToast(`Locale updated to: ${e.target.value.toUpperCase()}`);
                           }}
-                          className="w-full bg-[#F8FBFE] border border-[#E1EEF9] rounded-xl p-2.5 text-xs text-[#0B2545] font-semibold"
+                          className="w-full bg-[#F8FBFE] border border-[#E1EEF9] rounded-xl p-2.5 text-xs text-[#0B2545] font-semibold font-body input-text"
                         >
                           <option value="en">English (Official Operations)</option>
                           <option value="hi">हिन्दी (Hindi)</option>
@@ -917,8 +1155,8 @@ export const SettingsPage: React.FC = () => {
                       </div>
 
                       <div className="space-y-2.5 pt-2">
-                        <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider">
-                          Visual & Ergonomic Accessibility
+                        <h3 className="font-display font-semibold text-xs text-slate-700 uppercase tracking-[0.06em]">
+                          Visual &amp; Ergonomic Accessibility
                         </h3>
 
                         {[
@@ -949,8 +1187,8 @@ export const SettingsPage: React.FC = () => {
                             className="p-3 rounded-xl border border-[#E1EEF9] bg-[#F8FBFE] flex items-center justify-between"
                           >
                             <div>
-                              <div className="font-bold text-[#0B2545]">{acc.label}</div>
-                              <div className="text-[10px] text-slate-500">{acc.desc}</div>
+                              <div className="font-semibold text-[#0B2545] font-body text-xs">{acc.label}</div>
+                              <div className="micro-text text-slate-500 font-body">{acc.desc}</div>
                             </div>
                             <input
                               type="checkbox"
@@ -973,14 +1211,14 @@ export const SettingsPage: React.FC = () => {
                   <div className="space-y-6 animate-fadeIn">
                     <div className="flex items-center justify-between">
                       <div>
-                        <h2 className="text-base font-bold text-[#0B2545]">User & Access Governance</h2>
-                        <p className="text-xs text-slate-500 mt-0.5">
+                        <h2 className="heading-secondary text-[#0B2545]">User &amp; Access Governance</h2>
+                        <p className="body-text text-xs text-slate-500 mt-0.5 font-body">
                           Role-based permissions for incident commanding, evidence export, and vessel attribution.
                         </p>
                       </div>
                       <button
                         onClick={() => setShowInviteModal(true)}
-                        className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-[#1E5FBF] to-[#2E8FE8] text-white text-xs font-bold flex items-center gap-1.5 shadow-sm cursor-pointer"
+                        className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-[#1E5FBF] to-[#2E8FE8] text-white btn-text flex items-center gap-1.5 shadow-sm cursor-pointer font-body"
                       >
                         <Plus className="w-3.5 h-3.5" />
                         <span>Invite Officer</span>
@@ -989,27 +1227,27 @@ export const SettingsPage: React.FC = () => {
 
                     {/* Users Table */}
                     <div className="border border-[#E1EEF9] rounded-xl overflow-hidden bg-white">
-                      <table className="w-full text-left text-xs border-collapse">
+                      <table className="w-full text-left border-collapse">
                         <thead>
-                          <tr className="bg-[#F8FBFE] border-b border-[#E1EEF9] text-slate-500 uppercase tracking-wider text-[10px]">
-                            <th className="p-3 font-semibold">Name & Agency</th>
+                          <tr className="table-header bg-[#F8FBFE] border-b border-[#E1EEF9] text-slate-500 uppercase tracking-wider text-[10px]">
+                            <th className="p-3 font-semibold">Name &amp; Agency</th>
                             <th className="p-3 font-semibold">Role Designation</th>
                             <th className="p-3 font-semibold">Gov Email</th>
                             <th className="p-3 font-semibold">Status</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-100">
+                        <tbody className="table-body divide-y divide-slate-100 text-xs font-body">
                           {teamMembers.map((m) => (
-                            <tr key={m.id} className="hover:bg-slate-50/80">
-                              <td className="p-3 font-bold text-[#0B2545]">
+                            <tr key={m.id} className="hover:bg-slate-50/80 transition-colors">
+                              <td className="p-3 font-semibold text-[#0B2545]">
                                 <div>{m.name}</div>
-                                <div className="text-[10px] text-slate-400 font-normal">{m.agency}</div>
+                                <div className="micro-text text-slate-400 font-normal">{m.agency}</div>
                               </td>
-                              <td className="p-3 font-semibold text-slate-700">{m.role}</td>
-                              <td className="p-3 font-mono text-slate-600 text-[11px]">{m.email}</td>
+                              <td className="p-3 font-medium text-slate-700 font-body">{m.role}</td>
+                              <td className="p-3 data-mono-sm font-mono text-slate-600">{m.email}</td>
                               <td className="p-3">
                                 <span
-                                  className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                                  className={`badge-text px-2 py-0.5 rounded-full border ${
                                     m.status === "Active"
                                       ? "bg-emerald-50 text-emerald-700 border-emerald-200"
                                       : "bg-amber-50 text-amber-700 border-amber-200"
@@ -1025,22 +1263,22 @@ export const SettingsPage: React.FC = () => {
                     </div>
 
                     {/* Permissions Legend */}
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs font-body">
                       <div className="p-3 rounded-xl bg-[#F8FBFE] border border-[#E1EEF9]">
-                        <div className="font-bold text-[#0B2545]">Viewer (Read-Only)</div>
-                        <p className="text-[10px] text-slate-500 mt-0.5">
+                        <div className="heading-section text-xs text-[#0B2545]">Viewer (Read-Only)</div>
+                        <p className="micro-text text-slate-500 mt-0.5 font-body">
                           Can view live AIS feeds, incident dossiers, and sensor layers.
                         </p>
                       </div>
                       <div className="p-3 rounded-xl bg-[#F8FBFE] border border-[#E1EEF9]">
-                        <div className="font-bold text-[#0B2545]">Senior Analyst</div>
-                        <p className="text-[10px] text-slate-500 mt-0.5">
+                        <div className="heading-section text-xs text-[#0B2545]">Senior Analyst</div>
+                        <p className="micro-text text-slate-500 mt-0.5 font-body">
                           Full access to Counterfactual Lab, What-If simulator, and forensic scoring.
                         </p>
                       </div>
                       <div className="p-3 rounded-xl bg-[#F8FBFE] border border-[#E1EEF9]">
-                        <div className="font-bold text-[#0B2545]">Incident Commander</div>
-                        <p className="text-[10px] text-slate-500 mt-0.5">
+                        <div className="heading-section text-xs text-[#0B2545]">Incident Commander</div>
+                        <p className="micro-text text-slate-500 mt-0.5 font-body">
                           Authorized to deploy assets, issue NAVTEX alerts, and sign court evidence.
                         </p>
                       </div>
@@ -1055,13 +1293,13 @@ export const SettingsPage: React.FC = () => {
 
       {/* Invite Officer Modal */}
       {showInviteModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn font-body">
           <form
             onSubmit={handleInviteUser}
             className="w-full max-w-md bg-white border border-[#E1EEF9] rounded-2xl shadow-2xl p-5 text-slate-800 space-y-4"
           >
             <div className="flex items-center justify-between border-b border-[#E1EEF9] pb-2">
-              <h3 className="text-sm font-bold text-[#0B2545]">Invite Maritime Operations Officer</h3>
+              <h3 className="heading-section text-sm text-[#0B2545]">Invite Maritime Operations Officer</h3>
               <button
                 type="button"
                 onClick={() => setShowInviteModal(false)}
@@ -1071,37 +1309,37 @@ export const SettingsPage: React.FC = () => {
               </button>
             </div>
 
-            <div className="space-y-3 text-xs">
+            <div className="space-y-3 text-xs font-body">
               <div>
-                <label className="block font-bold text-slate-700 mb-1">Officer Name</label>
+                <label className="input-label block text-slate-700 mb-1 font-body">Officer Name</label>
                 <input
                   type="text"
                   required
                   value={inviteName}
                   onChange={(e) => setInviteName(e.target.value)}
                   placeholder="e.g. Lt. Cdr. V. Joshi"
-                  className="w-full bg-[#F8FBFE] border border-[#E1EEF9] rounded-xl p-2 font-semibold"
+                  className="w-full bg-[#F8FBFE] border border-[#E1EEF9] rounded-xl p-2 font-semibold input-text font-body"
                 />
               </div>
 
               <div>
-                <label className="block font-bold text-slate-700 mb-1">Government / Agency Email</label>
+                <label className="input-label block text-slate-700 mb-1 font-body">Government / Agency Email</label>
                 <input
                   type="email"
                   required
                   value={inviteEmail}
                   onChange={(e) => setInviteEmail(e.target.value)}
                   placeholder="name@agency.gov.in"
-                  className="w-full bg-[#F8FBFE] border border-[#E1EEF9] rounded-xl p-2 font-semibold"
+                  className="w-full bg-[#F8FBFE] border border-[#E1EEF9] rounded-xl p-2 font-semibold input-text font-body"
                 />
               </div>
 
               <div>
-                <label className="block font-bold text-slate-700 mb-1">Role Designation</label>
+                <label className="input-label block text-slate-700 mb-1 font-body">Role Designation</label>
                 <select
                   value={inviteRole}
                   onChange={(e) => setInviteRole(e.target.value)}
-                  className="w-full bg-[#F8FBFE] border border-[#E1EEF9] rounded-xl p-2 font-semibold"
+                  className="w-full bg-[#F8FBFE] border border-[#E1EEF9] rounded-xl p-2 font-semibold input-text font-body"
                 >
                   <option value="Senior Analyst">Senior Analyst</option>
                   <option value="Incident Commander">Incident Commander</option>
@@ -1111,17 +1349,17 @@ export const SettingsPage: React.FC = () => {
               </div>
             </div>
 
-            <div className="pt-2 flex justify-end gap-2">
+            <div className="pt-2 flex justify-end gap-2 font-body">
               <button
                 type="button"
                 onClick={() => setShowInviteModal(false)}
-                className="px-3 py-1.5 rounded-xl border border-[#E1EEF9] text-xs font-semibold text-slate-600"
+                className="px-3 py-1.5 rounded-xl border border-[#E1EEF9] btn-text text-slate-600"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="px-4 py-1.5 rounded-xl bg-[#1E5FBF] hover:bg-[#174EA6] text-white text-xs font-bold"
+                className="px-4 py-1.5 rounded-xl bg-[#1E5FBF] hover:bg-[#174EA6] text-white btn-text"
               >
                 Send Official Invite
               </button>

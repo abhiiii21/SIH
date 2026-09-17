@@ -69,18 +69,18 @@ export const FloatingSpillEvolutionPanel: React.FC<FloatingSpillEvolutionPanelPr
         <div>
           <div className="flex items-center gap-2">
             <Clock className="w-4 h-4 text-[#185ADB]" />
-            <span className="text-xs font-bold text-[#0B2545]">Spill Evolution</span>
-            <span className="text-[10px] text-slate-400 font-medium">Hindcast (past) and Forecast (future)</span>
+            <span className="font-display font-semibold text-xs tracking-wide text-[#0B2545]">Spill Evolution</span>
+            <span className="text-[11px] text-slate-400 font-body font-normal">Hindcast (past) and Forecast (future)</span>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          <span className="text-[10px] text-slate-500 font-mono hidden sm:inline">12 Sep 2026 17:00 UTC</span>
+        <div className="flex items-center gap-2 font-body">
+          <span className="text-[11px] text-slate-500 font-mono hidden sm:inline">12 Sep 2026 17:00 UTC</span>
 
           <select
             value={playbackSpeed}
             onChange={(e) => setPlaybackSpeed(Number(e.target.value))}
-            className="text-[10px] font-semibold bg-slate-50 border border-slate-200 rounded-lg px-1.5 py-0.5 text-slate-700 cursor-pointer"
+            className="text-[11px] font-semibold bg-slate-50 border border-slate-200 rounded-lg px-1.5 py-0.5 text-slate-700 cursor-pointer font-body"
           >
             <option value={1}>1x</option>
             <option value={2}>2x</option>
@@ -90,7 +90,7 @@ export const FloatingSpillEvolutionPanel: React.FC<FloatingSpillEvolutionPanelPr
           <button
             type="button"
             onClick={onOpenCompareView}
-            className="px-2 py-0.5 rounded-lg bg-sky-50 hover:bg-sky-100 border border-sky-200 text-[#185ADB] text-[10px] font-bold flex items-center gap-1 cursor-pointer transition-colors shadow-2xs"
+            className="px-2 py-0.5 rounded-lg bg-sky-50 hover:bg-sky-100 border border-sky-200 text-[#185ADB] text-[11px] font-semibold flex items-center gap-1 cursor-pointer transition-colors shadow-2xs font-body"
             title="Side-by-side or difference comparison"
           >
             <SplitSquareVertical className="w-3 h-3" />
@@ -209,10 +209,10 @@ export const FloatingSpillEvolutionPanel: React.FC<FloatingSpillEvolutionPanelPr
                 )}
               </div>
 
-              <div className="text-[10px] font-bold text-[#0B2545] truncate leading-tight">
+              <div className="text-[11px] font-semibold text-[#0B2545] truncate leading-tight font-body">
                 {thumb.label}
               </div>
-              <div className="text-[8px] text-slate-400 font-mono truncate leading-tight">
+              <div className="text-[9px] text-slate-400 font-mono truncate leading-tight">
                 {thumb.subLabel}
               </div>
             </button>

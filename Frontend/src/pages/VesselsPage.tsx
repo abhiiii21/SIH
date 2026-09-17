@@ -12,7 +12,7 @@ import {
   VesselStatus,
   RiskLevel,
 } from "../data/vesselsData";
-import sahayyaApi from "../services/api";
+import sahayyaApi, { getAvatarUrl } from "../services/api";
 import sahayyaSocket from "../services/socket";
 import { VesselsMap } from "../components/VesselsMap";
 import { EvidenceGraphModal } from "../components/EvidenceGraphModal";
@@ -516,11 +516,11 @@ export const VesselsPage: React.FC = () => {
                 <path d="M7 16h10v2H7zm2 3h6v1.5H9z" />
               </svg>
             </div>
-            <div className="hidden sm:block leading-tight">
-              <div className="text-[11px] font-bold tracking-wide text-[#0B2545] uppercase">
+            <div className="hidden sm:block leading-tight font-body">
+              <div className="text-[11px] font-semibold tracking-wide text-[#0B2545] uppercase">
                 Ministry of Defence
               </div>
-              <div className="text-[10px] text-slate-500 font-medium">Government of India</div>
+              <div className="text-[10px] text-slate-500 font-normal">Government of India</div>
             </div>
           </div>
 
@@ -547,14 +547,14 @@ export const VesselsPage: React.FC = () => {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-lg font-black tracking-[0.18em] text-[#0B2545]">
+                <span className="font-display text-lg font-bold tracking-[0.16em] text-[#0B2545]">
                   SAHAYYA
                 </span>
-                <span className="bg-emerald-100 text-emerald-700 border border-emerald-300 text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wider">
+                <span className="bg-emerald-100 text-emerald-700 border border-emerald-300 text-[9px] font-semibold px-1.5 py-0.5 rounded-full uppercase tracking-wider font-body">
                   BETA
                 </span>
               </div>
-              <p className="text-[10px] text-slate-500 hidden md:block">
+              <p className="text-[10px] text-slate-500 hidden md:block font-body">
                 Maritime Oil Spill Intelligence &amp; Vessel Attribution
               </p>
             </div>
@@ -570,7 +570,7 @@ export const VesselsPage: React.FC = () => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search vessel (IMO, name), location or coordinates..."
-              className="w-full pl-9 pr-12 py-1.5 rounded-xl bg-[#F8FBFE] border border-[#E1EEF9] text-xs text-slate-700 placeholder-slate-400 focus:outline-none focus:border-[#1E5FBF] focus:bg-white focus:ring-1 focus:ring-[#1E5FBF] transition-all"
+              className="w-full pl-9 pr-12 py-1.5 rounded-xl bg-[#F8FBFE] border border-[#E1EEF9] text-xs text-slate-700 placeholder-slate-400 focus:outline-none focus:border-[#1E5FBF] focus:bg-white focus:ring-1 focus:ring-[#1E5FBF] transition-all font-body"
             />
             <span className="absolute right-2.5 px-1.5 py-0.5 rounded text-[10px] font-mono bg-white border border-[#E1EEF9] text-slate-500 pointer-events-none">
               ⌘ K
@@ -581,11 +581,11 @@ export const VesselsPage: React.FC = () => {
         {/* Right: Date/Time + Status + Bell + User */}
         <div className="flex items-center gap-3">
           <div className="hidden xl:block text-right leading-tight">
-            <div className="text-xs font-bold text-[#0B2545] font-mono">12 Sep 2026 17:55 UTC</div>
+            <div className="text-xs font-semibold text-[#0B2545] font-mono">12 Sep 2026 17:55 UTC</div>
             <div className="text-[10px] text-slate-400 font-mono">(Local: 23:25 IST)</div>
           </div>
 
-          <div className="hidden lg:flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200/80 text-emerald-700 text-xs font-semibold">
+          <div className="hidden lg:flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200/80 text-emerald-700 text-xs font-semibold font-body">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
             <span>Systems Operational</span>
           </div>
@@ -596,7 +596,7 @@ export const VesselsPage: React.FC = () => {
             className="w-9 h-9 rounded-xl border border-[#E1EEF9] hover:bg-[#F0F7FD] flex items-center justify-center text-slate-600 transition-colors cursor-pointer relative"
           >
             <Bell className="w-4 h-4" />
-            <span className="absolute top-1.5 right-1.5 px-1 min-w-[14px] h-3.5 bg-rose-500 text-white rounded-full text-[9px] font-bold flex items-center justify-center">
+            <span className="absolute top-1.5 right-1.5 px-1 min-w-[14px] h-3.5 bg-rose-500 text-white rounded-full text-[9px] font-semibold flex items-center justify-center font-body">
               3
             </span>
           </button>
@@ -607,14 +607,24 @@ export const VesselsPage: React.FC = () => {
               onClick={() => setShowUserMenu(!showUserMenu)}
               className="flex items-center gap-2 pl-2 pr-1.5 py-1 rounded-xl hover:bg-[#F0F7FD] transition-colors cursor-pointer"
             >
-              <div className="w-8 h-8 rounded-full bg-[#0B2545] text-white text-xs font-black flex items-center justify-center shadow-sm">
-                {user?.name ? user.name.slice(0, 2).toUpperCase() : "SK"}
+              <div className="w-8 h-8 rounded-full bg-[#0B2545] text-white text-xs font-black flex items-center justify-center shadow-sm overflow-hidden border border-sky-200">
+                {user?.avatar_url ? (
+                  <img
+                    src={getAvatarUrl(user.avatar_url)}
+                    alt={user.name || "Officer"}
+                    className="w-full h-full object-cover"
+                  />
+                ) : user?.name ? (
+                  user.name.slice(0, 2).toUpperCase()
+                ) : (
+                  "SK"
+                )}
               </div>
               <div className="hidden sm:block text-left leading-tight">
                 <div className="text-xs font-bold text-[#0B2545]">
                   {user?.name || "S. Kumar"}
                 </div>
-                <div className="text-[10px] text-slate-500">Coast Guard</div>
+                <div className="text-[10px] text-slate-500">{user?.role || "Coast Guard"}</div>
               </div>
               <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
             </button>
@@ -623,14 +633,23 @@ export const VesselsPage: React.FC = () => {
               <div className="absolute right-0 mt-2 w-48 bg-white border border-[#E1EEF9] rounded-2xl shadow-[0_10px_30px_rgba(30,95,191,0.15)] p-2 z-50 animate-fadeIn">
                 <div className="px-3 py-2 border-b border-slate-100 text-xs">
                   <div className="font-bold text-[#0B2545]">{user?.name || "S. Kumar"}</div>
-                  <div className="text-[10px] text-slate-400">Commander (West Command)</div>
+                  <div className="text-[10px] text-slate-400">{user?.role || "Commander (West Command)"}</div>
                 </div>
+                <button
+                  onClick={() => {
+                    setShowUserMenu(false);
+                    navigate("/settings");
+                  }}
+                  className="w-full text-left px-3 py-2 rounded-lg hover:bg-slate-50 text-xs text-slate-700 flex items-center gap-2 cursor-pointer mt-1"
+                >
+                  <span>Profile & Settings</span>
+                </button>
                 <button
                   onClick={() => {
                     logout();
                     navigate("/login");
                   }}
-                  className="w-full text-left px-3 py-2 rounded-lg hover:bg-rose-50 text-xs text-rose-600 flex items-center gap-2 cursor-pointer font-semibold mt-1"
+                  className="w-full text-left px-3 py-2 rounded-lg hover:bg-rose-50 text-xs text-rose-600 flex items-center gap-2 cursor-pointer font-semibold"
                 >
                   <LogOut className="w-3.5 h-3.5" />
                   <span>Logout</span>
@@ -659,13 +678,13 @@ export const VesselsPage: React.FC = () => {
             }`}
           >
             {[
-              { id: "Home", icon: Home, label: "Home", path: "/dashboard" },
-              { id: "Map", icon: MapIcon, label: "Map", path: "/map" },
-              { id: "Incidents", icon: Activity, label: "Incidents", path: "/incidents/IN-MH-2026" },
-              { id: "Vessels", icon: Ship, label: "Vessels", path: "/vessels" },
-              { id: "Analysis", icon: BarChart3, label: "Analysis", path: "/analysis" },
-              { id: "Settings", icon: Settings, label: "Settings", path: "/settings" },
-              { id: "Help", icon: HelpCircle, label: "Help" },
+              { id: "Dashboard", label: "Home", icon: Home, route: "/dashboard" },
+              { id: "Map", label: "Map", icon: MapIcon, route: "/map" },
+              { id: "Incidents", label: "Incidents", icon: Activity, route: "/incidents/IN-MH-2026" },
+              { id: "Vessels", label: "Vessels", icon: Ship, route: "/vessels" },
+              { id: "Analysis", label: "Analysis", icon: BarChart3, route: "/analysis" },
+              { id: "Settings", label: "Settings", icon: Settings, route: "/settings" },
+              { id: "Help", label: "Help", icon: HelpCircle, route: "" },
             ].map((item) => {
               const Icon = item.icon;
               const isActive = activeNav === item.id;
@@ -674,15 +693,14 @@ export const VesselsPage: React.FC = () => {
               return (
                 <button
                   key={item.id}
+                  type="button"
                   onClick={() => {
                     setActiveNav(item.id);
-                    if (item.path) {
-                      navigate(item.path);
-                    } else {
-                      triggerToast(`Switched view to: ${item.label}`);
+                    if (item.route) {
+                      navigate(item.route);
                     }
                   }}
-                  className={`w-full py-2.5 rounded-xl flex flex-col items-center justify-center gap-1 transition-all cursor-pointer relative ${
+                  className={`w-12 h-12 rounded-xl flex flex-col items-center justify-center gap-0.5 transition-all cursor-pointer ${
                     isActive
                       ? isIndigoAccent
                         ? "bg-gradient-to-r from-[#6366F1] to-[#4F46E5] text-white shadow-md shadow-indigo-950/40"
@@ -694,13 +712,13 @@ export const VesselsPage: React.FC = () => {
                   title={item.label}
                 >
                   <Icon className="w-5 h-5 stroke-[1.8]" />
-                  <span className="text-[9px] font-semibold tracking-tight">{item.label}</span>
+                  <span className="text-[9px] font-medium tracking-tight font-body">{item.label}</span>
                 </button>
               );
             })}
           </div>
 
-          <div className="px-1 text-center">
+          <div className="px-1 text-center font-body">
             <div className="w-6 h-6 mx-auto mb-1 text-sky-400 opacity-60">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M2 12c2.5-3 5-3 7.5 0s5 3 7.5 0 5-3 7-0.5" />
@@ -722,7 +740,7 @@ export const VesselsPage: React.FC = () => {
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div>
                 {/* Breadcrumb */}
-                <nav className="flex items-center gap-2 text-xs font-semibold text-slate-500 mb-1">
+                <nav className="flex items-center gap-2 text-xs font-medium text-slate-500 mb-1 font-body">
                   <button
                     onClick={() => navigate("/dashboard")}
                     className="flex items-center gap-1 hover:text-[#0B2545] transition-colors cursor-pointer"
@@ -733,22 +751,22 @@ export const VesselsPage: React.FC = () => {
                   <span className="text-slate-300">/</span>
                   <span className="text-[#1E5FBF]">Vessels</span>
                   <span className="text-slate-300">/</span>
-                  <span className="font-bold text-[#0B2545]">Fleet Monitoring</span>
+                  <span className="font-semibold text-[#0B2545]">Fleet Monitoring</span>
                 </nav>
 
-                <h1 className="text-2xl sm:text-3xl font-black text-[#0B2545] tracking-tight">
+                <h1 className="heading-page text-[#0B2545]">
                   Vessels
                 </h1>
-                <p className="text-xs text-slate-500 mt-0.5">
+                <p className="text-xs text-slate-500 mt-0.5 font-body">
                   Monitor and track ships in real-time using AIS data across Indian waters (Ships only)
                 </p>
               </div>
 
               {/* Top-Right Action Buttons */}
-              <div className="flex items-center gap-2.5">
+              <div className="flex items-center gap-2.5 font-body">
                 <button
                   onClick={() => triggerToast("Exporting AIS Fleet Registry (CSV & GeoJSON)...")}
-                  className="px-3.5 py-2 rounded-xl border border-[#E1EEF9] bg-white hover:bg-[#F8FBFE] text-xs font-bold text-slate-700 flex items-center gap-1.5 shadow-[0_2px_8px_rgba(30,95,191,0.06)] transition-all cursor-pointer"
+                  className="px-3.5 py-2 rounded-xl border border-[#E1EEF9] bg-white hover:bg-[#F8FBFE] text-xs font-semibold text-slate-700 flex items-center gap-1.5 shadow-[0_2px_8px_rgba(30,95,191,0.06)] transition-all cursor-pointer btn-text"
                 >
                   <Download className="w-4 h-4 text-slate-500" />
                   <span>Export</span>
@@ -756,7 +774,7 @@ export const VesselsPage: React.FC = () => {
 
                 <button
                   onClick={() => setShowGenerateReportModal(true)}
-                  className="px-4 py-2 rounded-xl bg-[#0B2545] hover:bg-[#123A66] text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
+                  className="px-4 py-2 rounded-xl bg-[#0B2545] hover:bg-[#123A66] text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm transition-all cursor-pointer btn-text"
                 >
                   <FileText className="w-4 h-4" />
                   <span>Generate Report</span>
@@ -832,7 +850,7 @@ export const VesselsPage: React.FC = () => {
                       <Ship className="w-4 h-4" />
                     </div>
                     <span
-                      className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
+                      className={`text-[10px] font-semibold px-1.5 py-0.5 rounded badge-text font-body ${
                         c.trendDir === "down"
                           ? "bg-rose-50 text-rose-600"
                           : c.trendDir === "neutral"
@@ -844,12 +862,12 @@ export const VesselsPage: React.FC = () => {
                     </span>
                   </div>
 
-                  <div className="mt-2">
-                    <div className="text-xl font-black text-[#0B2545]">{c.value}</div>
-                    <div className="text-[10px] font-bold text-slate-600 truncate mt-0.5">
+                  <div className="mt-2 font-body">
+                    <div className="text-2xl font-bold tracking-tight text-[#0B2545] kpi-number">{c.value}</div>
+                    <div className="text-[11px] font-semibold text-slate-600 truncate mt-0.5">
                       {c.label}
                     </div>
-                    <div className="text-[9px] text-slate-400 font-medium truncate mt-0.5">
+                    <div className="text-[10px] text-slate-400 font-normal truncate mt-0.5">
                       {c.subtext}
                     </div>
                   </div>
@@ -860,21 +878,21 @@ export const VesselsPage: React.FC = () => {
               <div className="p-3.5 rounded-2xl bg-white border border-[#E1EEF9] shadow-[0_4px_20px_rgba(30,95,191,0.06)] flex flex-col justify-between col-span-2 sm:col-span-1">
                 <div className="flex items-center gap-2">
                   <CloudSun className="w-5 h-5 text-amber-500 shrink-0" />
-                  <span className="text-lg font-black text-[#0B2545]">28.3 °C</span>
+                  <span className="text-lg font-bold tracking-tight text-[#0B2545] font-body">28.3 °C</span>
                 </div>
 
-                <div className="space-y-1 text-[9px] font-mono text-slate-500 mt-2">
+                <div className="space-y-1 text-[10px] font-mono text-slate-500 mt-2">
                   <div className="flex justify-between">
-                    <span>Wind:</span>
-                    <span className="font-bold text-slate-700">5.1 m/s (289°)</span>
+                    <span className="font-body text-slate-400">Wind:</span>
+                    <span className="font-semibold text-slate-700">5.1 m/s (289°)</span>
                   </div>
                   <div className="flex justify-between">
-                    <span>Waves:</span>
-                    <span className="font-bold text-slate-700">1.0 m</span>
+                    <span className="font-body text-slate-400">Waves:</span>
+                    <span className="font-semibold text-slate-700">1.0 m</span>
                   </div>
                   <div className="flex justify-between">
-                    <span>Visibility:</span>
-                    <span className="font-bold text-slate-700">10 km</span>
+                    <span className="font-body text-slate-400">Visibility:</span>
+                    <span className="font-semibold text-slate-700">10 km</span>
                   </div>
                 </div>
               </div>
@@ -883,19 +901,19 @@ export const VesselsPage: React.FC = () => {
             {/* ================================================================= */}
             {/* MAIN ROW: 3 SECTIONS (Filters | Map | ASI Insights)               */}
             {/* ================================================================= */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start font-body">
               {/* LEFT PANEL: Vessel Filters (3 cols) */}
               <div className="lg:col-span-3 p-4 rounded-2xl bg-white border border-[#E1EEF9] shadow-[0_4px_20px_rgba(30,95,191,0.08)] space-y-3.5">
                 <div className="flex items-center justify-between pb-2 border-b border-[#E1EEF9]">
                   <div className="flex items-center gap-2">
                     <Filter className="w-4 h-4 text-[#1E5FBF]" />
-                    <h2 className="text-xs font-bold text-[#0B2545] uppercase tracking-wider">
+                    <h2 className="heading-section text-xs uppercase tracking-wider text-[#0B2545]">
                       Vessel Filters
                     </h2>
                   </div>
                   <button
                     onClick={handleClearAllFilters}
-                    className="text-[11px] font-bold text-[#1E5FBF] hover:underline cursor-pointer"
+                    className="text-[11px] font-semibold text-[#1E5FBF] hover:underline cursor-pointer font-body"
                   >
                     Clear All
                   </button>
@@ -910,20 +928,20 @@ export const VesselsPage: React.FC = () => {
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       placeholder="Search vessel (name, IMO, MMSI)..."
-                      className="w-full pl-8 pr-3 py-1.5 rounded-xl bg-[#F8FBFE] border border-[#E1EEF9] text-xs text-slate-700 placeholder-slate-400 focus:outline-none focus:border-[#1E5FBF]"
+                      className="w-full pl-8 pr-3 py-1.5 rounded-xl bg-[#F8FBFE] border border-[#E1EEF9] text-xs text-slate-700 placeholder-slate-400 focus:outline-none focus:border-[#1E5FBF] font-body"
                     />
                   </div>
                 </div>
 
                 {/* Dropdown 1: Vessel Type */}
                 <div>
-                  <label className="text-[10px] font-bold text-slate-500 uppercase block mb-1">
+                  <label className="text-[11px] font-semibold text-slate-500 uppercase block mb-1 font-body">
                     Vessel Type
                   </label>
                   <select
                     value={selectedType}
                     onChange={(e) => setSelectedType(e.target.value)}
-                    className="w-full p-2 rounded-xl bg-[#F8FBFE] border border-[#E1EEF9] text-xs font-medium text-slate-700 focus:outline-none focus:border-[#1E5FBF] cursor-pointer"
+                    className="w-full p-2 rounded-xl bg-[#F8FBFE] border border-[#E1EEF9] text-xs font-normal text-slate-700 focus:outline-none focus:border-[#1E5FBF] cursor-pointer font-body"
                   >
                     <option value="All Types (Ships Only)">All Types (Ships Only)</option>
                     <option value="Tanker">Tanker</option>
@@ -936,13 +954,13 @@ export const VesselsPage: React.FC = () => {
 
                 {/* Dropdown 2: Status */}
                 <div>
-                  <label className="text-[10px] font-bold text-slate-500 uppercase block mb-1">
+                  <label className="text-[11px] font-semibold text-slate-500 uppercase block mb-1 font-body">
                     Status
                   </label>
                   <select
                     value={selectedStatus}
                     onChange={(e) => setSelectedStatus(e.target.value)}
-                    className="w-full p-2 rounded-xl bg-[#F8FBFE] border border-[#E1EEF9] text-xs font-medium text-slate-700 focus:outline-none focus:border-[#1E5FBF] cursor-pointer"
+                    className="w-full p-2 rounded-xl bg-[#F8FBFE] border border-[#E1EEF9] text-xs font-normal text-slate-700 focus:outline-none focus:border-[#1E5FBF] cursor-pointer font-body"
                   >
                     <option value="All Status">All Status</option>
                     <option value="Normal">Normal</option>
@@ -1051,7 +1069,7 @@ export const VesselsPage: React.FC = () => {
               <div className="lg:col-span-3 p-4 rounded-2xl bg-white border border-[#E1EEF9] shadow-[0_4px_20px_rgba(30,95,191,0.08)] space-y-3">
                 <div className="flex items-center justify-between pb-2 border-b border-[#E1EEF9]">
                   <div className="flex items-center gap-1.5">
-                    <h2 className="text-xs font-bold text-[#0B2545] uppercase tracking-wider">
+                    <h2 className="heading-section text-xs uppercase tracking-wider text-[#0B2545]">
                       ASI Insights
                     </h2>
                     <div className="relative">
@@ -1063,7 +1081,7 @@ export const VesselsPage: React.FC = () => {
                         <Info className="w-3.5 h-3.5" />
                       </button>
                       {showAsiTooltip && (
-                        <div className="absolute left-0 top-full mt-1 w-64 p-2 bg-[#0B2545] text-white text-[10px] rounded-xl shadow-xl z-50 animate-fadeIn">
+                        <div className="absolute left-0 top-full mt-1 w-64 p-2 bg-[#0B2545] text-white text-[11px] font-body rounded-xl shadow-xl z-50 animate-fadeIn">
                           ASI (Anomaly / Suspicion Index) monitors kinematic course deviance, speed drops, AIS latency, and transponder spoofing.
                         </div>
                       )}
@@ -1071,14 +1089,14 @@ export const VesselsPage: React.FC = () => {
                   </div>
                   <button
                     onClick={() => setShowAsiInsightModal("all")}
-                    className="text-[11px] font-bold text-[#1E5FBF] hover:underline cursor-pointer"
+                    className="text-[11px] font-semibold text-[#1E5FBF] hover:underline cursor-pointer font-body"
                   >
                     View All
                   </button>
                 </div>
 
                 {/* 4 Alert Cards */}
-                <div className="space-y-2.5">
+                <div className="space-y-2.5 font-body">
                   {ASI_INSIGHT_CARDS.map((asi) => {
                     const isFilterActive = activeAsiFilter === asi.title;
                     return (
@@ -1120,9 +1138,9 @@ export const VesselsPage: React.FC = () => {
                         {/* Text & Count */}
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between">
-                            <span className="text-xs font-bold text-[#0B2545]">{asi.title}</span>
+                            <span className="text-xs font-semibold text-[#0B2545] font-body">{asi.title}</span>
                             <span
-                              className={`text-sm font-black px-1.5 rounded-full ${
+                              className={`text-sm font-bold px-1.5 rounded-full font-body ${
                                 asi.color === "amber"
                                   ? "text-amber-700"
                                   : asi.color === "rose"
@@ -1135,7 +1153,7 @@ export const VesselsPage: React.FC = () => {
                               {asi.count}
                             </span>
                           </div>
-                          <p className="text-[10px] text-slate-500 leading-snug mt-0.5">
+                          <p className="body-description text-sm text-slate-600 leading-relaxed mt-1.5 font-body">
                             {asi.description}
                           </p>
                         </div>
@@ -1155,15 +1173,15 @@ export const VesselsPage: React.FC = () => {
             {/* ================================================================= */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
               {/* PANEL: Selected Vessel (3 cols) */}
-              <div className="lg:col-span-3 p-4 rounded-2xl bg-white border border-[#E1EEF9] shadow-[0_4px_20px_rgba(30,95,191,0.08)] flex flex-col justify-between space-y-3">
+              <div className="lg:col-span-3 p-4 rounded-2xl bg-white border border-[#E1EEF9] shadow-[0_4px_20px_rgba(30,95,191,0.08)] flex flex-col justify-between space-y-3 font-body">
                 <div>
                   <div className="flex items-center justify-between pb-2 border-b border-[#E1EEF9]">
-                    <span className="text-xs font-bold text-[#0B2545] uppercase tracking-wider">
+                    <span className="heading-section text-xs uppercase tracking-wider text-[#0B2545]">
                       Selected Vessel
                     </span>
                     {/* Status Pill */}
                     <span
-                      className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                      className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border badge-text font-body ${
                         selectedVessel.status === "Under Observation"
                           ? "bg-amber-100 text-amber-800 border-amber-300"
                           : selectedVessel.status === "Flagged"
@@ -1187,65 +1205,67 @@ export const VesselsPage: React.FC = () => {
                       />
                     </div>
                     <div>
-                      <h3 className="text-sm font-black text-[#0B2545] leading-tight">
+                      <h3 className="text-base font-bold text-[#0B2545] leading-tight font-display">
                         {selectedVessel.name}
                       </h3>
-                      <div className="text-[10px] text-slate-500 font-mono mt-0.5">
-                        {selectedVessel.type} &nbsp;|&nbsp; IMO {selectedVessel.imo}
+                      <div className="text-[11px] text-slate-500 mt-0.5 font-body">
+                        <span>{selectedVessel.type}</span>
+                        <span className="mx-1 text-slate-300">&bull;</span>
+                        <span className="font-mono text-[11px] text-slate-600">IMO {selectedVessel.imo}</span>
                       </div>
                     </div>
                   </div>
 
                   {/* 2-Column Detail List */}
-                  <div className="grid grid-cols-2 gap-x-2 gap-y-1.5 mt-3 pt-3 border-t border-[#E1EEF9] text-[10px] font-mono">
+                  <div className="grid grid-cols-2 gap-x-2 gap-y-1.5 mt-3 pt-3 border-t border-[#E1EEF9] text-[11px]">
                     <div>
-                      <span className="text-slate-400 block font-sans text-[9px]">Flag</span>
-                      <span className="font-bold text-[#0B2545]">
-                        {selectedVessel.flag} [{selectedVessel.flagCode}]
+                      <span className="text-slate-400 block font-body text-[10px]">Flag</span>
+                      <span className="font-medium text-[#0B2545] font-body">
+                        {selectedVessel.flag} <span className="font-mono text-[10px] text-slate-500">[{selectedVessel.flagCode}]</span>
                       </span>
                     </div>
                     <div>
-                      <span className="text-slate-400 block font-sans text-[9px]">MMSI</span>
-                      <span className="font-bold text-slate-700">{selectedVessel.mmsi}</span>
+                      <span className="text-slate-400 block font-body text-[10px]">MMSI</span>
+                      <span className="font-mono font-medium text-slate-700">{selectedVessel.mmsi}</span>
                     </div>
                     <div>
-                      <span className="text-slate-400 block font-sans text-[9px]">Location</span>
-                      <span className="font-bold text-slate-700">
+                      <span className="text-slate-400 block font-body text-[10px]">Location</span>
+                      <span className="font-mono font-medium text-slate-700">
                         {selectedVessel.coordinates[0].toFixed(2)}°N, {selectedVessel.coordinates[1].toFixed(2)}°E
                       </span>
                     </div>
                     <div>
-                      <span className="text-slate-400 block font-sans text-[9px]">Speed</span>
-                      <span className="font-bold text-emerald-700">{selectedVessel.speedKnots} kts</span>
+                      <span className="text-slate-400 block font-body text-[10px]">Speed</span>
+                      <span className="font-mono font-medium text-emerald-700">{selectedVessel.speedKnots} kts</span>
                     </div>
                     <div>
-                      <span className="text-slate-400 block font-sans text-[9px]">Heading</span>
-                      <span className="font-bold text-slate-700">{selectedVessel.heading}°</span>
+                      <span className="text-slate-400 block font-body text-[10px]">Heading</span>
+                      <span className="font-mono font-medium text-slate-700">{selectedVessel.heading}°</span>
                     </div>
                     <div>
-                      <span className="text-slate-400 block font-sans text-[9px]">Status</span>
-                      <span className="font-bold text-amber-700">{selectedVessel.status}</span>
+                      <span className="text-slate-400 block font-body text-[10px]">Status</span>
+                      <span className="font-body font-semibold text-amber-700">{selectedVessel.status}</span>
                     </div>
                     <div className="col-span-2">
-                      <span className="text-slate-400 block font-sans text-[9px]">Last AIS</span>
-                      <span className="font-bold text-slate-700">{selectedVessel.lastAis}</span>
+                      <span className="text-slate-400 block font-body text-[10px]">Last AIS</span>
+                      <span className="font-mono text-slate-700 text-[11px]">{selectedVessel.lastAis}</span>
                     </div>
                     <div className="col-span-2">
-                      <span className="text-slate-400 block font-sans text-[9px]">ETA</span>
-                      <span className="font-bold text-slate-700">{selectedVessel.eta}</span>
+                      <span className="text-slate-400 block font-body text-[10px]">ETA</span>
+                      <span className="font-mono text-slate-700 text-[11px]">{selectedVessel.eta}</span>
                     </div>
                   </div>
                 </div>
 
                 {/* 4 Action Buttons Grid */}
-                <div className="grid grid-cols-2 gap-1.5 pt-2 border-t border-[#E1EEF9]">
+                <div className="grid grid-cols-2 gap-1.5 pt-2 border-t border-[#E1EEF9] font-body">
                   <button
                     onClick={() => {
                       setTrackTab("Ollama AI");
                       const providerName = aiStatus?.provider === "google_gemini" ? "Google AI (Gemini 3.6 Flash)" : "Ollama AI";
                       triggerToast(`Analyzing ${selectedVessel.name} with ${providerName}`);
                     }}
-                    className={`py-1.5 px-2 rounded-xl border text-[10px] font-bold text-center cursor-pointer shadow-2xs flex items-center justify-center gap-1 transition-all ${
+                    className={`py-1.5 px-2 rounded-xl border text-[11px] font-semibold text-center cursor-pointer shadow-2xs flex items-center justify-center gap-1 transition-all btn-text ${
                       trackTab === "Ollama AI"
                         ? "border-purple-500 bg-purple-600 text-white ring-1 ring-purple-300"
                         : "border-purple-300 bg-gradient-to-r from-purple-50 to-indigo-50 hover:from-purple-100 hover:to-indigo-100 text-purple-700"
@@ -1260,7 +1280,7 @@ export const VesselsPage: React.FC = () => {
                       setTrackTab("Track");
                       triggerToast(`Viewing historical track for ${selectedVessel.name}`);
                     }}
-                    className={`py-1.5 px-2 rounded-xl border text-[10px] font-bold text-center cursor-pointer shadow-2xs ${
+                    className={`py-1.5 px-2 rounded-xl border text-[11px] font-semibold text-center cursor-pointer shadow-2xs btn-text ${
                       trackTab === "Track"
                         ? "border-[#1E5FBF] bg-[#1E5FBF] text-white"
                         : "border-[#E1EEF9] bg-white hover:bg-[#F8FBFE] text-slate-700"
@@ -1274,7 +1294,7 @@ export const VesselsPage: React.FC = () => {
                       setShowEvidenceModal(true);
                       triggerToast(`Opening 7D Evidence File for ${selectedVessel.name}`);
                     }}
-                    className="py-1.5 px-2 rounded-xl border border-[#E1EEF9] bg-white hover:bg-[#F8FBFE] text-[10px] font-bold text-slate-700 text-center cursor-pointer shadow-2xs"
+                    className="py-1.5 px-2 rounded-xl border border-[#E1EEF9] bg-white hover:bg-[#F8FBFE] text-[11px] font-semibold text-slate-700 text-center cursor-pointer shadow-2xs btn-text"
                   >
                     7D Evidence
                   </button>
@@ -1282,14 +1302,14 @@ export const VesselsPage: React.FC = () => {
                   <div className="relative" ref={moreDetailsRef}>
                     <button
                       onClick={() => setShowMoreDetailsDropdown(!showMoreDetailsDropdown)}
-                      className="w-full py-1.5 px-1 rounded-xl border border-[#E1EEF9] bg-white hover:bg-[#F8FBFE] text-[10px] font-bold text-slate-700 text-center cursor-pointer shadow-2xs flex items-center justify-center gap-0.5"
+                      className="w-full py-1.5 px-1 rounded-xl border border-[#E1EEF9] bg-white hover:bg-[#F8FBFE] text-[11px] font-semibold text-slate-700 text-center cursor-pointer shadow-2xs flex items-center justify-center gap-0.5 btn-text"
                     >
                       <span>More</span>
                       <ChevronDown className="w-3 h-3 text-slate-400" />
                     </button>
 
                     {showMoreDetailsDropdown && (
-                      <div className="absolute right-0 bottom-full mb-1 w-44 bg-white border border-[#E1EEF9] rounded-xl shadow-xl p-1 z-50 text-[11px] animate-fadeIn">
+                      <div className="absolute right-0 bottom-full mb-1 w-44 bg-white border border-[#E1EEF9] rounded-xl shadow-xl p-1 z-50 text-[11px] animate-fadeIn font-body">
                         <button
                           onClick={() => {
                             setShowMoreDetailsDropdown(false);
@@ -1329,13 +1349,13 @@ export const VesselsPage: React.FC = () => {
                   <div className="flex items-center justify-between pb-2 border-b border-[#E1EEF9]">
                     <div className="flex items-center gap-2">
                       <Navigation className="w-4 h-4 text-[#1E5FBF]" />
-                      <h2 className="text-xs font-bold text-[#0B2545] uppercase tracking-wider">
+                      <h2 className="heading-section text-xs uppercase tracking-wider text-[#0B2545]">
                         Vessel Track &amp; ASI Timeline
                       </h2>
                     </div>
 
                     {/* Tab Row: Track | Speed | Events | ASI Analysis | Ollama AI */}
-                    <div className="flex items-center p-0.5 rounded-xl bg-[#F0F7FD] border border-[#E1EEF9] text-[10px] font-bold">
+                    <div className="flex items-center p-0.5 rounded-xl bg-[#F0F7FD] border border-[#E1EEF9] text-[11px] font-semibold font-body">
                       {(["Track", "Speed", "Events", "ASI Analysis", "Ollama AI"] as const).map((tab) => (
                         <button
                           key={tab}
@@ -1681,18 +1701,18 @@ export const VesselsPage: React.FC = () => {
 
                   {/* Batch Action Bar if 1+ checked */}
                   {selectedVesselChecklist.length > 0 && (
-                    <div className="my-2 p-2 rounded-xl bg-[#0B2545] text-white text-xs flex items-center justify-between animate-fadeIn">
-                      <span className="font-bold">{selectedVesselChecklist.length} selected</span>
+                    <div className="my-2 p-2 rounded-xl bg-[#0B2545] text-white text-xs flex items-center justify-between animate-fadeIn font-body">
+                      <span className="font-semibold">{selectedVesselChecklist.length} selected</span>
                       <div className="flex gap-2">
                         <button
                           onClick={() => triggerToast(`Tracking ${selectedVesselChecklist.length} vessels concurrently.`)}
-                          className="px-2 py-0.5 rounded bg-[#1E5FBF] hover:bg-[#174EA6] text-[10px] font-bold cursor-pointer"
+                          className="px-2 py-0.5 rounded bg-[#1E5FBF] hover:bg-[#174EA6] text-[10px] font-semibold cursor-pointer btn-text"
                         >
                           Track Selected
                         </button>
                         <button
                           onClick={() => triggerToast("Added selected to Coast Guard watchlist.")}
-                          className="px-2 py-0.5 rounded bg-white/20 hover:bg-white/30 text-[10px] font-bold cursor-pointer"
+                          className="px-2 py-0.5 rounded bg-white/20 hover:bg-white/30 text-[10px] font-semibold cursor-pointer btn-text"
                         >
                           Watchlist
                         </button>
@@ -1704,7 +1724,7 @@ export const VesselsPage: React.FC = () => {
                   <div className="mt-2 overflow-x-auto">
                     <table className="w-full text-left text-xs">
                       <thead>
-                        <tr className="border-b border-slate-200 text-[10px] font-mono text-slate-400 uppercase">
+                        <tr className="border-b border-slate-200 text-[11px] font-semibold text-slate-500 uppercase tracking-wider font-body table-header">
                           <th className="py-1.5 px-1 w-6">
                             <button onClick={handleSelectAllNearby} className="cursor-pointer">
                               {selectedVesselChecklist.length === 4 ? (
@@ -1722,7 +1742,7 @@ export const VesselsPage: React.FC = () => {
                           <th className="py-1.5 px-1 font-semibold">Status</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-100 font-mono text-[11px]">
+                      <tbody className="divide-y divide-slate-100 font-body text-xs table-body">
                         {nearbyVessels.map((v) => {
                           const isChecked = selectedVesselChecklist.includes(v.id);
                           const isSelected = selectedVessel.id === v.id;
@@ -1730,7 +1750,7 @@ export const VesselsPage: React.FC = () => {
                             <tr
                               key={v.id}
                               className={`transition-colors cursor-pointer ${
-                                isSelected ? "bg-sky-50 font-bold" : "hover:bg-[#F8FBFE]"
+                                isSelected ? "bg-sky-50 font-semibold" : "hover:bg-[#F8FBFE]"
                               }`}
                             >
                               <td className="py-2 px-1">
@@ -1750,22 +1770,22 @@ export const VesselsPage: React.FC = () => {
                                 </button>
                               </td>
                               <td
-                                className="py-2 px-1 font-bold text-[#0B2545] hover:underline"
+                                className="py-2 px-1 font-semibold text-[#0B2545] hover:underline font-body"
                                 onClick={() => setSelectedVesselId(v.id)}
                               >
                                 {v.name}
                               </td>
-                              <td className="py-2 px-1 text-slate-500 font-sans text-[10px]">
+                              <td className="py-2 px-1 text-slate-500 font-body text-xs">
                                 {v.type}
                               </td>
-                              <td className="py-2 px-1 font-bold text-slate-700">
+                              <td className="py-2 px-1 font-medium font-mono text-slate-700 data-mono">
                                 {v.distanceKm} km
                               </td>
-                              <td className="py-2 px-1 text-slate-600">{v.bearingDeg}°</td>
-                              <td className="py-2 px-1 text-emerald-700">{v.speedKnots} kts</td>
+                              <td className="py-2 px-1 font-mono text-slate-600 data-mono">{v.bearingDeg}°</td>
+                              <td className="py-2 px-1 font-medium font-mono text-emerald-700 data-mono">{v.speedKnots} kts</td>
                               <td className="py-2 px-1">
                                 <span
-                                  className={`text-[9px] font-bold px-1.5 py-0.2 rounded-full ${
+                                  className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full badge-text font-body ${
                                     v.status === "Normal"
                                       ? "bg-emerald-100 text-emerald-700"
                                       : v.status === "In AOI"
@@ -1790,11 +1810,11 @@ export const VesselsPage: React.FC = () => {
               </div>
 
               {/* PANEL: Fleet Summary (Ships Only) (3 cols) */}
-              <div className="lg:col-span-3 p-4 rounded-2xl bg-white border border-[#E1EEF9] shadow-[0_4px_20px_rgba(30,95,191,0.08)] flex flex-col justify-between space-y-2">
+              <div className="lg:col-span-3 p-4 rounded-2xl bg-white border border-[#E1EEF9] shadow-[0_4px_20px_rgba(30,95,191,0.08)] flex flex-col justify-between space-y-2 font-body">
                 <div>
                   <div className="flex items-center justify-between pb-2 border-b border-[#E1EEF9]">
                     <div className="flex items-center gap-1.5">
-                      <h2 className="text-xs font-bold text-[#0B2545] uppercase tracking-wider">
+                      <h2 className="heading-section text-xs uppercase tracking-wider text-[#0B2545]">
                         Fleet Summary (Ships Only)
                       </h2>
                       <button
@@ -1805,7 +1825,7 @@ export const VesselsPage: React.FC = () => {
                         <Info className="w-3.5 h-3.5" />
                       </button>
                       {showFleetSummaryTooltip && (
-                        <div className="absolute left-1/3 bottom-20 w-52 p-2 bg-[#0B2545] text-white text-[10px] rounded-xl shadow-xl z-50 animate-fadeIn">
+                        <div className="absolute left-1/3 bottom-20 w-52 p-2 bg-[#0B2545] text-white text-[11px] rounded-xl shadow-xl z-50 animate-fadeIn font-body">
                           Aggregated telemetry excludes non-commercial fishing vessels and pleasure crafts.
                         </div>
                       )}
@@ -1815,42 +1835,42 @@ export const VesselsPage: React.FC = () => {
                   {/* Grid of 5 Stat Tiles matching screenshot */}
                   <div className="grid grid-cols-2 gap-2 mt-2">
                     <div className="p-2 rounded-xl bg-rose-50/50 border border-rose-200/80">
-                      <div className="text-[10px] text-slate-500 font-medium">Tankers</div>
+                      <div className="text-[11px] text-slate-500 font-medium font-body">Tankers</div>
                       <div className="flex items-baseline justify-between mt-1">
-                        <span className="text-lg font-black text-rose-700">28</span>
-                        <span className="text-[10px] font-bold text-emerald-700 font-mono">↑ 2</span>
+                        <span className="text-lg font-bold text-rose-700 font-body kpi-number">28</span>
+                        <span className="text-[10px] font-semibold text-emerald-700 font-mono">↑ 2</span>
                       </div>
                     </div>
 
                     <div className="p-2 rounded-xl bg-emerald-50/50 border border-emerald-200/80">
-                      <div className="text-[10px] text-slate-500 font-medium">Bulk Carriers</div>
+                      <div className="text-[11px] text-slate-500 font-medium font-body">Bulk Carriers</div>
                       <div className="flex items-baseline justify-between mt-1">
-                        <span className="text-lg font-black text-emerald-700">24</span>
-                        <span className="text-[10px] font-bold text-emerald-700 font-mono">↑ 1</span>
+                        <span className="text-lg font-bold text-emerald-700 font-body kpi-number">24</span>
+                        <span className="text-[10px] font-semibold text-emerald-700 font-mono">↑ 1</span>
                       </div>
                     </div>
 
                     <div className="p-2 rounded-xl bg-blue-50/50 border border-blue-200/80">
-                      <div className="text-[10px] text-slate-500 font-medium">Container Ships</div>
+                      <div className="text-[11px] text-slate-500 font-medium font-body">Container Ships</div>
                       <div className="flex items-baseline justify-between mt-1">
-                        <span className="text-lg font-black text-blue-700">32</span>
-                        <span className="text-[10px] font-bold text-slate-500 font-mono">↑ 0</span>
+                        <span className="text-lg font-bold text-blue-700 font-body kpi-number">32</span>
+                        <span className="text-[10px] font-semibold text-slate-500 font-mono">↑ 0</span>
                       </div>
                     </div>
 
                     <div className="p-2 rounded-xl bg-orange-50/50 border border-orange-200/80">
-                      <div className="text-[10px] text-slate-500 font-medium">General Cargo</div>
+                      <div className="text-[11px] text-slate-500 font-medium font-body">General Cargo</div>
                       <div className="flex items-baseline justify-between mt-1">
-                        <span className="text-lg font-black text-orange-700">18</span>
-                        <span className="text-[10px] font-bold text-emerald-700 font-mono">↑ 1</span>
+                        <span className="text-lg font-bold text-orange-700 font-body kpi-number">18</span>
+                        <span className="text-[10px] font-semibold text-emerald-700 font-mono">↑ 1</span>
                       </div>
                     </div>
 
                     <div className="p-2 rounded-xl bg-slate-100 border border-slate-200 col-span-2">
-                      <div className="text-[10px] text-slate-500 font-medium">Other Ships</div>
+                      <div className="text-[11px] text-slate-500 font-medium font-body">Other Ships</div>
                       <div className="flex items-baseline justify-between mt-1">
-                        <span className="text-lg font-black text-slate-700">40</span>
-                        <span className="text-[10px] font-bold text-rose-600 font-mono">↓ 1</span>
+                        <span className="text-lg font-bold text-slate-700 font-body kpi-number">40</span>
+                        <span className="text-[10px] font-semibold text-rose-600 font-mono">↓ 1</span>
                       </div>
                     </div>
                   </div>
@@ -1862,18 +1882,18 @@ export const VesselsPage: React.FC = () => {
               </div>
 
               {/* PANEL: Coast Guard Assets Nearby (4 cols) */}
-              <div className="lg:col-span-4 p-4 rounded-2xl bg-white border border-[#E1EEF9] shadow-[0_4px_20px_rgba(30,95,191,0.08)] flex flex-col justify-between space-y-2">
+              <div className="lg:col-span-4 p-4 rounded-2xl bg-white border border-[#E1EEF9] shadow-[0_4px_20px_rgba(30,95,191,0.08)] flex flex-col justify-between space-y-2 font-body">
                 <div>
                   <div className="flex items-center justify-between pb-2 border-b border-[#E1EEF9]">
                     <div className="flex items-center gap-2">
                       <ShieldAlert className="w-4 h-4 text-emerald-600" />
-                      <h2 className="text-xs font-bold text-[#0B2545] uppercase tracking-wider">
+                      <h2 className="heading-section text-xs uppercase tracking-wider text-[#0B2545]">
                         Coast Guard Assets Nearby
                       </h2>
                     </div>
                     <button
                       onClick={() => triggerToast("Viewing full Indian Coast Guard Western Fleet Roster.")}
-                      className="text-[11px] font-bold text-[#1E5FBF] hover:underline cursor-pointer"
+                      className="text-[11px] font-semibold text-[#1E5FBF] hover:underline cursor-pointer font-body"
                     >
                       View All
                     </button>
@@ -1883,28 +1903,28 @@ export const VesselsPage: React.FC = () => {
                   <div className="mt-2 overflow-x-auto">
                     <table className="w-full text-left text-xs">
                       <thead>
-                        <tr className="border-b border-slate-200 text-[10px] font-mono text-slate-400 uppercase">
+                        <tr className="border-b border-slate-200 text-[11px] font-semibold text-slate-500 uppercase tracking-wider font-body table-header">
                           <th className="py-1.5 px-1 font-semibold">Name</th>
                           <th className="py-1.5 px-1 font-semibold">Type</th>
                           <th className="py-1.5 px-1 font-semibold">Distance</th>
                           <th className="py-1.5 px-1 font-semibold">Status</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-100 font-mono text-[11px]">
+                      <tbody className="divide-y divide-slate-100 font-body text-xs table-body">
                         {COAST_GUARD_ASSETS.map((asset) => (
                           <tr
                             key={asset.id}
                             onClick={() => setSelectedAssetModal(asset)}
                             className="hover:bg-[#F8FBFE] transition-colors cursor-pointer"
                           >
-                            <td className="py-2 px-1 font-bold text-[#0B2545]">{asset.name}</td>
-                            <td className="py-2 px-1 text-slate-500 font-sans text-[10px]">
+                            <td className="py-2 px-1 font-semibold text-[#0B2545] font-body">{asset.name}</td>
+                            <td className="py-2 px-1 text-slate-500 font-body text-xs">
                               {asset.type}
                             </td>
-                            <td className="py-2 px-1 font-bold text-slate-700">{asset.distance}</td>
+                            <td className="py-2 px-1 font-medium font-mono text-slate-700 data-mono">{asset.distance}</td>
                             <td className="py-2 px-1">
                               <span
-                                className={`text-[9px] font-bold px-1.5 py-0.2 rounded-full ${
+                                className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full badge-text font-body ${
                                   asset.status === "Operational"
                                     ? "bg-emerald-100 text-emerald-700"
                                     : "bg-sky-100 text-sky-700"

@@ -103,6 +103,9 @@ async def download_vessel_evidence_brief(
     vessel_type: Optional[str] = Query(None),
     flag: Optional[str] = Query(None),
     name: Optional[str] = Query(None),
+    imo: Optional[str] = Query(None),
+    mmsi: Optional[str] = Query(None),
+    built_year: Optional[str] = Query(None),
     score: Optional[float] = Query(None, description="Attribution / Confidence Score %"),
     cpa_km: Optional[float] = Query(None, description="Closest Point of Approach in km"),
     dark_duration: Optional[str] = Query(None, description="Dark Duration string e.g. '60 min'"),
@@ -157,12 +160,12 @@ async def download_vessel_evidence_brief(
 
     # Resolve telemetry & attributes
     if vessel:
-        v_name = vessel.name
-        v_imo = vessel.imo_number
-        v_mmsi = vessel.mmsi
-        v_type = vessel.vessel_type
-        v_flag = vessel.flag_country
-        v_built = vessel.built_year
+        v_name = name or vessel.name
+        v_imo = imo or vessel.imo_number
+        v_mmsi = mmsi or vessel.mmsi
+        v_type = vessel_type or vessel.vessel_type
+        v_flag = flag or vessel.flag_country
+        v_built = built_year or vessel.built_year
         v_events = vessel.asi_events
         v_attr = max(vessel.attributions, key=lambda a: a.attribution_pct) if vessel.attributions else None
         latest_p = max(vessel.positions, key=lambda p: p.recorded_at) if vessel.positions else None
@@ -177,11 +180,11 @@ async def download_vessel_evidence_brief(
             c_lon, c_lat = 72.32, 18.82
     else:
         v_name = name or clean_id.replace("-", " ").title()
-        v_imo = clean_id if clean_id.isdigit() and len(clean_id) >= 7 else f"9{abs(hash(clean_id)) % 900000 + 100000}"
-        v_mmsi = f"41900{abs(hash(clean_id)) % 9000 + 1000}"
+        v_imo = imo or (clean_id if clean_id.isdigit() and len(clean_id) >= 7 else f"9{abs(hash(clean_id)) % 900000 + 100000}")
+        v_mmsi = mmsi or f"41900{abs(hash(clean_id)) % 9000 + 1000}"
         v_type = vessel_type or "General Cargo"
         v_flag = flag or "India"
-        v_built = 2018
+        v_built = built_year or "2018"
         v_events = []
         v_attr = None
         c_speed = speed_kts if speed_kts is not None else 13.5
